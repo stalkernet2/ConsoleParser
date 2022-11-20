@@ -15,21 +15,21 @@ namespace ConsoleParser
 
             Logger.LogNewLine("Дивы и А классы для озона проверены?(y/n)", LogEnum.Action);
 
-            //while (true)
-            //{
-            //    var pressedKey = Console.ReadKey().Key;
+            while (true)
+            {
+                var pressedKey = Console.ReadKey().Key;
 
-            //    if (pressedKey == ConsoleKey.Y)
-            //        break;
-            //    else if (pressedKey == ConsoleKey.N)
-            //    {
-            //        Logger.LogNewLine("Ты знаешь что делать...(измени их в файле, находящиеся по пути config/presets.json)", LogEnum.Warning);
-            //        Thread.Sleep(5000);
-            //        return;
-            //    }
+                if (pressedKey == ConsoleKey.Y)
+                    break;
+                else if (pressedKey == ConsoleKey.N)
+                {
+                    Logger.LogNewLine("Ты знаешь что делать...(измени их в файле, находящиеся по пути config/presets.json)", LogEnum.Warning);
+                    Thread.Sleep(5000);
+                    return;
+                }
 
-            //    Logger.OnLine();
-            //}
+                Logger.OnLine();
+            }
 
             var parameters = new Parameters("config/presets.json");
 
@@ -44,8 +44,6 @@ namespace ConsoleParser
             Logger.LogNewLine("SecretJSON:     " + parameters.SecretJson);
             Logger.LogNewLine("APIName:        " + parameters.APIName);
             Logger.LogNewLine("SpreadsheetId:  " + parameters.SpreadsheetId);
-
-            //Thread.Sleep(2500);
 
             if (parameters.EndPage < parameters.StartPage)
             {

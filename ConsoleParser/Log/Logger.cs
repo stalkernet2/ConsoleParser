@@ -38,7 +38,7 @@ namespace ConsoleParser
 
         public static void LogNewLine(string text, LogEnum @enum = LogEnum.Info)
         {
-            WriteTextInLogFile($"[{DateTime.Now.ToString("dd.MM.yyyy || HH:mm:ss.ffffff")}]: {@enum} " + text);
+            WriteTextInLogFile($"[{DateTime.Now:dd.MM.yyyy || HH:mm:ss.ffffff}]: {@enum} " + text);
 
             switch (@enum)
             {

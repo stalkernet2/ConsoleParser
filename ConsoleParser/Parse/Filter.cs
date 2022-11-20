@@ -19,7 +19,7 @@ namespace ConsoleParser.Parse
                 if (links[i].Contains(manufacture))
                     result.Add(links[i]);
 
-                Logger.LogOnLine($"|Отфильтрованно {i} из {links.Count}");
+                Logger.LogOnLine($"│├Отфильтровано {i + 1} из {links.Count}");
             }
 
             if (result.Count == 0)

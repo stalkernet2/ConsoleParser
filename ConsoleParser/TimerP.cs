@@ -21,7 +21,7 @@ namespace ConsoleParser
             s_triggerTimeToStart = startTime;
             s_triggerTimeToStop = stopTime;
 
-            Logger.LogNewLine($"Парсер должен запуститься в {s_triggerTimeToStart}");
+            Logger.LogNewLine($"Запуск парсера по времени назначен на {s_triggerTimeToStart}");
             Logger.LogNewLine($"Выключиться в {s_triggerTimeToStop}");
 
             s_parameters = param;

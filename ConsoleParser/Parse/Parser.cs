@@ -44,6 +44,8 @@ namespace ConsoleParser.Parse
 
                 product.Manufacturers = Products.GetManufacture(product.Links);
 
+                GC.Collect();
+
                 for (int otidoProductIndex = 0; otidoProductIndex < product.Articules.Count; otidoProductIndex++)
                 {
                     Logger.LogNewLine($"Получение отзывов для \"{product.Names[otidoProductIndex]}\" ({otidoProductIndex + 1} из {product.Articules.Count})...");
@@ -115,11 +117,16 @@ namespace ConsoleParser.Parse
 
                     var length = ozonList.Count > vseinstrList.Count ? ozonList.Count : vseinstrList.Count;
                     for (int h = 0; h < length; h++)
-                        gSheets.CreateEntry("Лист1!A1", 
-                                            new List<object> { otidoHref, 
+                    {
+                        Logger.LogOnLine($"Отправлено {h + 1} из {length}");
+                        gSheets.CreateEntry("Лист1!A1",
+                                            new List<object> { otidoHref,
                                             h < ozonList.Count ? ozonList[h] : "",
                                             h < vseinstrList.Count ? vseinstrList[h] : ""});
+                    }
                     Logger.LogNewLine("...успешно!");
+
+                    GC.Collect();
                 }
             }
             otidoDriver.Close();

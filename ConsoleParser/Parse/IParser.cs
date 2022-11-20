@@ -54,7 +54,7 @@ namespace ConsoleParser.Parse
 
             for (int i = 0; i < stuff.Count; i++) 
             {
-                Logger.LogOnLine($"│├Собрано {i} из {stuff.Count}...");
+                Logger.LogOnLine($"│├Собрано {i + 1} из {stuff.Count}...");
                 var validTest = stuff[i].FindElements(By.XPath(XPaths[1])).Count; // second
 
                 if(validTest >= validValue)
