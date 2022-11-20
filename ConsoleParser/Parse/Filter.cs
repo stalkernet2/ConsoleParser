@@ -12,12 +12,14 @@ namespace ConsoleParser.Parse
         {
             List<string> result = new();
 
+            Console.WriteLine();
+
             for (int i = 0; i < links.Count; i++)
             {
                 if (links[i].Contains(manufacture))
                     result.Add(links[i]);
 
-                Logger.LogOnLine($"|Отфильтрованно {i} из {links.Count}", LogEnum.Info);
+                Logger.LogOnLine($"|Отфильтрованно {i} из {links.Count}");
             }
 
             if (result.Count == 0)

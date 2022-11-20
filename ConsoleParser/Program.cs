@@ -8,42 +8,44 @@ namespace ConsoleParser
         static void Main(string[] args)
         {
             Logger.Init();
-            Logger.LogNewLine("Инициализация логгера успешна!\n", LogEnum.Info);
+            Logger.LogNewLine("Инициализация логгера успешна!");
 
-            Logger.LogNewLine("Версия .Net: " + RuntimeInformation.FrameworkDescription, LogEnum.Info);
-            Logger.LogNewLine("Версия приложения: " + typeof(Program).Assembly.GetName().Version, LogEnum.Info);
+            Logger.LogNewLine("Версия .Net: " + RuntimeInformation.FrameworkDescription);
+            Logger.LogNewLine("Версия приложения: " + typeof(Program).Assembly.GetName().Version);
 
             Logger.LogNewLine("Дивы и А классы для озона проверены?(y/n)", LogEnum.Action);
 
-            while (true)
-            {
-                var pressedKey = Console.ReadKey().Key;
+            //while (true)
+            //{
+            //    var pressedKey = Console.ReadKey().Key;
 
-                if (pressedKey == ConsoleKey.Y)
-                    break;
-                else if (pressedKey == ConsoleKey.N)
-                {
-                    Logger.LogNewLine("Ты знаешь что делать...(измени их в файле, находящиеся по пути config/presets.json)", LogEnum.Warning);
-                    Thread.Sleep(5000);
-                    return;
-                }
-            }
+            //    if (pressedKey == ConsoleKey.Y)
+            //        break;
+            //    else if (pressedKey == ConsoleKey.N)
+            //    {
+            //        Logger.LogNewLine("Ты знаешь что делать...(измени их в файле, находящиеся по пути config/presets.json)", LogEnum.Warning);
+            //        Thread.Sleep(5000);
+            //        return;
+            //    }
+
+            //    Logger.OnLine();
+            //}
 
             var parameters = new Parameters("config/presets.json");
 
-            Logger.LogNewLine("StartPage:      " + parameters.StartPage,      LogEnum.Info);
-            Logger.LogNewLine("EndPage:        " + parameters.EndPage,        LogEnum.Info);
-            Logger.LogNewLine("URL:            " + parameters.URL,            LogEnum.Info);
-            Logger.LogNewLine("Ozon:           " + parameters.Ozon,           LogEnum.Info);
-            Logger.LogNewLine("VseInstrumenti: " + parameters.VseInstrumenti, LogEnum.Info);
-            Logger.LogNewLine("Yandex:         " + parameters.Yandex,         LogEnum.Info);
-            Logger.LogNewLine("DivClass:       " + parameters.DivClass,       LogEnum.Info);
-            Logger.LogNewLine("AClass:         " + parameters.AClass,         LogEnum.Info);
-            Logger.LogNewLine("SecretJSON:     " + parameters.SecretJson,     LogEnum.Info);
-            Logger.LogNewLine("APIName:        " + parameters.APIName,        LogEnum.Info);
-            Logger.LogNewLine("SpreadsheetId:  " + parameters.SpreadsheetId,  LogEnum.Info);
+            Logger.LogNewLine("StartPage:      " + parameters.StartPage);
+            Logger.LogNewLine("EndPage:        " + parameters.EndPage);
+            Logger.LogNewLine("URL:            " + parameters.URL);
+            Logger.LogNewLine("Ozon:           " + parameters.Ozon);
+            Logger.LogNewLine("VseInstrumenti: " + parameters.VseInstrumenti);
+            Logger.LogNewLine("Yandex:         " + parameters.Yandex);
+            Logger.LogNewLine("DivClass:       " + parameters.DivClass);
+            Logger.LogNewLine("AClass:         " + parameters.AClass);
+            Logger.LogNewLine("SecretJSON:     " + parameters.SecretJson);
+            Logger.LogNewLine("APIName:        " + parameters.APIName);
+            Logger.LogNewLine("SpreadsheetId:  " + parameters.SpreadsheetId);
 
-            Thread.Sleep(5000);
+            //Thread.Sleep(2500);
 
             if (parameters.EndPage < parameters.StartPage)
             {
@@ -57,10 +59,48 @@ namespace ConsoleParser
                 return;
             }
 
-            Logger.LogNewLine("Запуск парсера", LogEnum.Info);
-            Parser.Start(parameters);
+            Logger.LogNewLine("Какой режим работы установить для парсера:" +
+                              "\n1. Стандартный запуск - пермаментный запуск парсера " +
+                              "\n2. Запуск по времени - запускается в установленное время(при выборе этого пункта будет установлено далее), либо, в случае не введенного времени, в дефолтное время(01:00:00(час ночи)) " +
+                              "\n3. Дебаг момент - сохранение параметров", LogEnum.Action);
 
-            Logger.LogNewLine("Нажмите любую клавишу(кроме кнопки выключения компьютера), чтобы закрыть это окно", LogEnum.Info);
+            var tempBool = true;
+
+            while (tempBool)
+            {
+                var pressedKey = Console.ReadKey().Key;
+
+                switch (pressedKey)
+                {
+                    case ConsoleKey.D1:
+                        tempBool = false;
+                        Logger.LogNewLine("Запуск парсера.");
+                        new Thread(() => Parser.Start(parameters)).Start();
+                        break;
+                    case ConsoleKey.D2:
+                        tempBool = false;
+                        Logger.LogNewLine("Запуск таймера.");
+                        //TimerP.Init(parameters, new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second + 10), new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second + 20)); // debug
+                        TimerP.Init(parameters, new TimeSpan(1, 0, 0), new TimeSpan(6, 0, 0));
+                        break;
+                    case ConsoleKey.D3:
+                        tempBool = false;
+                        Parameters.DebugSave();
+                        break;
+                    case ConsoleKey.NumPad1:
+                        goto case ConsoleKey.D1;
+                    case ConsoleKey.NumPad2:
+                        goto case ConsoleKey.D2;
+                    case ConsoleKey.NumPad3:
+                        goto case ConsoleKey.D3;
+                    default:
+                        break;
+                }
+
+                Logger.OnLine();
+            }
+
+            Logger.LogNewLine("Нажмите любую клавишу(кроме кнопки выключения компьютера), чтобы закрыть это окно");
             Console.ReadKey();
         }
     }

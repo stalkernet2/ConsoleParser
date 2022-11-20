@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium;
-using ConsoleParser;
+using ConsoleParser.Stuff;
 
 namespace ConsoleParser.Parse
 {
@@ -19,7 +19,7 @@ namespace ConsoleParser.Parse
         {
             IParser searcher;
 
-            Logger.LogNewLine("Инициализация Гугл таблиц...", LogEnum.Info);
+            Logger.LogNewLine("Инициализация Гугл таблиц...");
             gSheets = new GSheets(parameters.SecretJson, parameters.APIName)
             {
                 SpreadsheetId = parameters.SpreadsheetId,
@@ -30,13 +30,13 @@ namespace ConsoleParser.Parse
             for (int pageNum = parameters.StartPage; pageNum <= parameters.EndPage; pageNum++)
             {
                 // Начало работы драйвера "ОТИДО"
-                Logger.LogNewLine($"Переход на {parameters.URL}?PAGEN_1={pageNum}...", LogEnum.Info);
+                Logger.LogNewLine($"Переход на {parameters.URL}?PAGEN_1={pageNum}...");
                 otidoDriver.Navigate().GoToUrl(parameters.URL + "?PAGEN_1=" + pageNum);
 
-                Logger.LogNewLine("Ожидание в одну секунду...", LogEnum.Info);
+                Logger.LogNewLine("Ожидание в одну секунду...");
                 Thread.Sleep(1000);
 
-                Logger.LogNewLine("Сбор товаров для парсинга...", LogEnum.Info);
+                Logger.LogNewLine("Сбор товаров для парсинга...");
                 var product = new Products(otidoDriver.FindElements(By.XPath(".//div[@class='catalog-block']//div[@itemprop='itemListElement']")));
 
                 if (product.Names.Count == 0)
@@ -46,7 +46,7 @@ namespace ConsoleParser.Parse
 
                 for (int otidoProductIndex = 0; otidoProductIndex < product.Articules.Count; otidoProductIndex++)
                 {
-                    Logger.LogNewLine($"Получение отзывов для \"{product.Names[otidoProductIndex]}\" ({otidoProductIndex + 1} из {product.Articules.Count})...", LogEnum.Info);
+                    Logger.LogNewLine($"Получение отзывов для \"{product.Names[otidoProductIndex]}\" ({otidoProductIndex + 1} из {product.Articules.Count})...");
 
                     var otidoHref = product.Links[otidoProductIndex];
                     var ozonList = new List<string>() { "" };
@@ -56,7 +56,7 @@ namespace ConsoleParser.Parse
 
                     if (parameters.Ozon)
                     {
-                        Logger.LogNewLine($"/С Озона...", LogEnum.Info);
+                        Logger.LogNewLine($"┌─С Озона...");
                         searcher = new Ozon();
                         ozonList = searcher.GetValidURL(searchCondition: product.Names[otidoProductIndex],
                                                         searchURL: "https://www.ozon.ru/search/?text=",
@@ -76,13 +76,14 @@ namespace ConsoleParser.Parse
                                                                                            $".//div/a/span/span",
                                                                                            $".//a[@data-prerender='true']"},
                                                                    noFound: out _));
+                        Logger.LogNewLine("└─Конец сбора с Озона");
                     }
 
                     //Начало работы драйвера "ВСЕИНСТРУМЕНТЫ"
 
                     if (parameters.VseInstrumenti)
                     {
-                        Logger.LogNewLine($"/С ВсеИнструментов...", LogEnum.Info);
+                        Logger.LogNewLine($"┌─С ВсеИнструментов...");
                         searcher = new VseInstrumenty();
                         vseinstrList = searcher.GetValidURL(searchCondition: product.Articules[otidoProductIndex],
                                                             manufacture: product.Manufacturers[otidoProductIndex],
@@ -102,6 +103,7 @@ namespace ConsoleParser.Parse
                                                                                     ".//a[@class='rating -link']"},
                                                                        noFound: out _,
                                                                        usingName: true));
+                        Logger.LogNewLine("└─Конец сбора со ВсехИнструментов");
                     }
 
                     if (ozonList.Count <= 0 && vseinstrList.Count <= 0)
@@ -109,7 +111,7 @@ namespace ConsoleParser.Parse
 
                     if (ozonList[0] == "" && vseinstrList[0] == "")
                         continue;
-                    Logger.LogNewLine("Отправка в Гугл таблицу...", LogEnum.Info);
+                    Logger.LogNewLine("Отправка в Гугл таблицу...");
 
                     var length = ozonList.Count > vseinstrList.Count ? ozonList.Count : vseinstrList.Count;
                     for (int h = 0; h < length; h++)
@@ -117,13 +119,13 @@ namespace ConsoleParser.Parse
                                             new List<object> { otidoHref, 
                                             h < ozonList.Count ? ozonList[h] : "",
                                             h < vseinstrList.Count ? vseinstrList[h] : ""});
-                    Logger.LogNewLine("...успешно!", LogEnum.Info);
+                    Logger.LogNewLine("...успешно!");
                 }
             }
             otidoDriver.Close();
             otidoDriver.Dispose();
 
-            Logger.LogNewLine($"Парсер успешно прошелся с {parameters.StartPage} по {parameters.EndPage} страницу!", LogEnum.Info);
+            Logger.LogNewLine($"Парсер успешно прошелся с {parameters.StartPage} по {parameters.EndPage} страницу!");
             return Task.CompletedTask;
         }
     }

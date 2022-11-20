@@ -19,7 +19,7 @@ namespace ConsoleParser.Parse
 
             var product = IParser.GetProductsV2(searchCondition, searchURL, XPaths, out noFound, 2);
 
-            Logger.LogNewLine("|Оценка совпадения наименования...", LogEnum.Info);
+            Logger.LogNewLine("│├Оценка совпадения наименования...");
 
             for (int i = 0; i < product.Names.Count; i++)
             {
@@ -34,11 +34,11 @@ namespace ConsoleParser.Parse
                 if (accuracy <= 16d)
                     continue;
 
-                Logger.LogOnLine($"|Получили оценку {i + 1} из {product.Names.Count}", LogEnum.Info);
+                Logger.LogOnLine($"│├Получили оценку {i + 1} из {product.Names.Count}");
                 outList.Add(OtherStuff.ClearGarbage(product.Links[i], '?') + (accuracy <= 90d ? " " + (int)accuracy + "%" : ""));
             }
 
-            Logger.LogNewLine($"\\{searchCondition} с озона успешно собрано!", LogEnum.Info);
+            Logger.LogNewLine($"│└\"{searchCondition}\" с озона успешно собран!");
             return outList;
         }
 

@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace ConsoleParser
 {
-    public class Parameters
+    public struct Parameters
     {
         public int StartPage { get; set; }
 
@@ -29,7 +29,17 @@ namespace ConsoleParser
 
         public Parameters()
         {
-            
+            StartPage = 0;
+            EndPage = 0;
+            URL = "https://ot-i-do.ru/catalog/svarochnoe-oborudovanie/";
+            Ozon = false;
+            VseInstrumenti = false;
+            Yandex = false;
+            DivClass = "k1p kp2";
+            AClass = "dt9";
+            SecretJson = "config/client_secrets.json";
+            APIName = "GoogleSheetsAPI";
+            SpreadsheetId = "1wCKGnnt1UMo473a2dMhz81qOVnuhaZHPJBJ0aCTg5mI";
         }
 
         public Parameters(string filePath)
@@ -48,43 +58,29 @@ namespace ConsoleParser
             APIName = presets.APIName;
             SpreadsheetId = presets.SpreadsheetId;
 
-            Logger.LogNewLine($"Параметры из {filePath} успешно загружены!", LogEnum.Info);
+            Logger.LogNewLine($"Параметры из {filePath} успешно загружены!");
         }
 
         public static Parameters Read(string filePath)
         {
-            Logger.LogNewLine($"Загрузка параметров из {filePath}...", LogEnum.Info);
+            Logger.LogNewLine($"Загрузка параметров из {filePath}...");
 
             if (!File.Exists(filePath))
             {
-                Logger.LogNewLine("Параметры небыли загружены! Файла с параметрами не существует.", LogEnum.Warning);
-                return null;
+                Logger.LogNewLine("Параметры небыли загружены! Файла с параметрами не существует.", LogEnum.Error);
+                return new Parameters();
             }
 
             var jsonString = File.ReadAllText(filePath);
             var presets = JsonSerializer.Deserialize<Parameters>(jsonString);
 
-            Logger.LogNewLine("Инициализация параметров...", LogEnum.Info);
+            Logger.LogNewLine("Инициализация параметров...");
             return presets;
         }
 
         public static void DebugSave()
         {
-            var we = new Parameters()
-            {
-                StartPage = 0,
-                EndPage = 0,
-                URL = "https://ot-i-do.ru/catalog/svarochnoe-oborudovanie/",
-                Ozon = false,
-                VseInstrumenti = false,
-                Yandex = false,
-                DivClass = "k1p kp2",
-                AClass = "dt9",
-                SecretJson = "",
-                APIName = "GoogleSheetsAPI",
-                SpreadsheetId = ""
-            };
-
+            var we = new Parameters();
             we.AsyncSave("config/presets.json");
         }
     }
@@ -93,12 +89,12 @@ namespace ConsoleParser
     {
         public static async void AsyncSave(this Parameters presets, string filePath)
         {
-            Logger.LogNewLine($"Сохранение параметров {filePath}...", LogEnum.Info);
+            Logger.LogNewLine($"Сохранение параметров {filePath}...");
             try
             {
                 await using FileStream fileStream = File.Create(filePath);
                 await JsonSerializer.SerializeAsync(fileStream, presets);
-                Logger.LogNewLine($"Параметры в {filePath} успешно сохранен!", LogEnum.Info);
+                Logger.LogNewLine($"Параметры в {filePath} успешно сохранен!");
             }
             catch (Exception ex)
             {

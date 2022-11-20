@@ -20,11 +20,10 @@ namespace ConsoleParser.Parse
 
             var productQuantity = product.Names.Count <= 5 ? product.Names.Count : 5;
 
-            Logger.LogNewLine("|Оценка совпадения наименования...", LogEnum.Info);
+            Logger.LogNewLine("│├Оценка совпадения наименования...");
 
             for (int i = 0; i < productQuantity; i++)
             {
-                Logger.LogOnLine($"|Получило оценку {i + 1} из {productQuantity}", LogEnum.Info);
                 var accuracy = 0d;
                 var splitedText = searchCondition.Split(' ');
                 var toAdd = 100d / splitedText.Length;
@@ -36,6 +35,7 @@ namespace ConsoleParser.Parse
                 if (accuracy <= 16d)
                     continue;
 
+                Logger.LogOnLine($"│├Получило оценку {i + 1} из {productQuantity}");
                 outList.Add(OtherStuff.ClearGarbage(product.Links[i], '?') + (accuracy <= 90d ? " " + (int)accuracy + "%" : ""));
             }
 
@@ -46,10 +46,10 @@ namespace ConsoleParser.Parse
         {
             var list = GetValidURL(searchCondition, searchURL, XPaths, out noFound, usingName);
 
-            Logger.LogNewLine("|Фильтрация по производителю через ссылку...", LogEnum.Info);
+            Logger.LogNewLine("│├Фильтрация по производителю через ссылку...");
             var result = Filter.ByManufacturers(list, manufacture);
 
-            Logger.LogNewLine($"\\{searchCondition} с озона успешно собрано!", LogEnum.Info);
+            Logger.LogNewLine($"│└{searchCondition} с озона успешно собрано!");
             return result;
         }
     }

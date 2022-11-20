@@ -8,7 +8,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace ConsoleParser
+namespace ConsoleParser.Stuff
 {
     public class Products
     {
@@ -31,7 +31,7 @@ namespace ConsoleParser
 
             for (int i = 0; i < collection.Count; i++)
             {
-                Logger.LogOnLine($"Парсинг карточки товара, {i} из {collection.Count}", LogEnum.Info);
+                Logger.LogOnLine($"Парсинг карточки товара, {i} из {collection.Count}");
                 names.Add(collection[i].FindElement(By.XPath(".//div/div/div/a/span")).Text);
 
                 var tempValue = collection[i].FindElement(By.XPath(".//div/div/div/a"));
@@ -63,7 +63,7 @@ namespace ConsoleParser
 
             for (int i = 0; i < links.Count; i++)
             {
-                Logger.LogOnLine($"Получение производителей ({i} из {links.Count})...", LogEnum.Info);
+                Logger.LogOnLine($"Получение производителей ({i} из {links.Count})...");
                 var htmlDoc = web.Load(links[i]);
                 HtmlNode? temp;
 
@@ -77,9 +77,9 @@ namespace ConsoleParser
                     temp = null;
                 }
 
-                var manufacture = temp.InnerText ?? String.Empty;
+                var manufacture = temp.InnerText ?? string.Empty;
 
-                if (manufacture == String.Empty)
+                if (manufacture == string.Empty)
                     continue;
 
                 manufacture = Regex.Replace(manufacture, @"\s+", "");
@@ -114,7 +114,7 @@ namespace ConsoleParser
 
         public static bool IsBasicLetter(char c)
         {
-            return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
+            return c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z';
         }
     }
 }

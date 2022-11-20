@@ -18,7 +18,7 @@ namespace ConsoleParser.Parse
 
         protected private static Product GetProductsV2(string searchCondition, string searchURL, string[] XPaths, out bool noFound, int validValue = 1)
         {
-            Logger.LogNewLine("|Попытка запуска сборщика...", LogEnum.Info);
+            Logger.LogNewLine("│┌Попытка запуска сборщика...");
             noFound = false;
             using var chromeDriver = new ChromeDriver();
             chromeDriver.Manage().Timeouts().PageLoad = TimeSpan.FromSeconds(25);
@@ -32,39 +32,42 @@ namespace ConsoleParser.Parse
                 }
                 catch
                 {
-                    Logger.LogNewLine($"|Попытка {i}...", LogEnum.Warning);
+                    Logger.LogNewLine($"│├Попытка {i}...", LogEnum.Warning);
                     if (i == 2)
                     {
-                        Logger.LogNewLine("...провальная", LogEnum.Error);
+                        Logger.LogNewLine("│├...провальная", LogEnum.Error);
                         return new Product(new List<string>(), new List<string>(), new List<string>());
                     }
                 }
             }
 
-            Logger.LogNewLine("|...успешна!", LogEnum.Info);
+            Logger.LogNewLine("│├...успешна!");
+            Logger.LogNewLine("│├Получение карточек товаров...");
+            var stuff = chromeDriver.FindElements(By.XPath(XPaths[0])); // основа 
 
-            var asd = chromeDriver.FindElements(By.XPath(XPaths[0])); // основа 
+            Logger.LogNewLine($"│├Получено {stuff.Count}");
 
             var nameList = new List<string>();
             var linkList = new List<string>();
 
-            Logger.LogNewLine("|Сбор...", LogEnum.Info);
+            Logger.LogNewLine("│├Сбор информации товара...");
 
-            for (int i = 0; i < asd.Count; i++) 
+            for (int i = 0; i < stuff.Count; i++) 
             {
-                var validTest = asd[i].FindElements(By.XPath(XPaths[1])).Count; // second
+                Logger.LogOnLine($"│├Собрано {i} из {stuff.Count}...");
+                var validTest = stuff[i].FindElements(By.XPath(XPaths[1])).Count; // second
 
                 if(validTest >= validValue)
                 {
-                    nameList.Add(asd[i].FindElement(By.XPath(XPaths[2])).Text);
-                    linkList.Add(asd[i].FindElement(By.XPath(XPaths[3])).GetAttribute("href"));
+                    nameList.Add(stuff[i].FindElement(By.XPath(XPaths[2])).Text);
+                    linkList.Add(stuff[i].FindElement(By.XPath(XPaths[3])).GetAttribute("href"));
                 }
             }
 
             if (nameList.Count == 0 || linkList.Count == 0)
                 noFound = true;
 
-            Logger.LogNewLine("|...успешен!", LogEnum.Info);
+            Logger.LogNewLine("│├...успешен!");
             return new Product(nameList, linkList, null);
         }
 
