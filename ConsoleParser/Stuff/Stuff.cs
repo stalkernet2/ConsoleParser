@@ -1,0 +1,47 @@
+﻿using OpenQA.Selenium;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace ConsoleParser.Stuff
+{
+    public class Stuff
+    {
+        public List<string> Names { get; set; }
+
+        public List<string> Links { get; set; }
+
+        public Stuff(ReadOnlyCollection<IWebElement> names, ReadOnlyCollection<IWebElement> links)
+        {
+            Names = GetTextList(names);
+            Links = GetHrefList(links);
+        }
+
+        protected private Stuff(List<string> names, List<string> links)
+        {
+            Names = names;
+            Links = links;
+        }
+
+        protected private static List<string> GetTextList(ReadOnlyCollection<IWebElement> readOnlyCollection)
+        {
+            var list = new List<string>();
+            for (int i = 0; i < readOnlyCollection.Count; i++)
+                list.Add(readOnlyCollection[i].Text);
+
+            return list;
+        }
+
+        protected private static List<string> GetHrefList(ReadOnlyCollection<IWebElement> readOnlyCollection)
+        {
+            var list = new List<string>();
+            for (int i = 0; i < readOnlyCollection.Count; i++)
+                list.Add(readOnlyCollection[i].GetAttribute("href"));
+
+            return list;
+        }
+    }
+}
