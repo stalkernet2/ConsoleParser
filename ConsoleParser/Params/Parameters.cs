@@ -26,6 +26,8 @@ namespace ConsoleParser
 
         public string SpreadsheetId { get; set; }
 
+        public string CaptchaKey { get; set; }
+
         public Parameters()
         {
             StartPage = 0;
@@ -39,11 +41,12 @@ namespace ConsoleParser
             SecretJson = "config/client_secrets.json";
             APIName = "GoogleSheetsAPI";
             SpreadsheetId = "1wCKGnnt1UMo473a2dMhz81qOVnuhaZHPJBJ0aCTg5mI";
+            CaptchaKey = "";
         }
 
         public Parameters(string filePath)
         {
-            var presets = Read(filePath);
+            var presets = GetFromFile(filePath);
 
             StartPage = presets.StartPage;
             EndPage = presets.EndPage;
@@ -56,11 +59,12 @@ namespace ConsoleParser
             SecretJson = presets.SecretJson;
             APIName = presets.APIName;
             SpreadsheetId = presets.SpreadsheetId;
+            CaptchaKey = presets.CaptchaKey;
 
             Logger.LogNewLine($"Параметры из {filePath} успешно загружены!");
         }
 
-        public static Parameters Read(string filePath)
+        public static Parameters GetFromFile(string filePath)
         {
             Logger.LogNewLine($"Загрузка параметров из {filePath}...");
 
@@ -81,24 +85,6 @@ namespace ConsoleParser
         {
             var we = new Parameters();
             we.AsyncSave("config/presets.json");
-        }
-    }
-
-    public static class External
-    {
-        public static async void AsyncSave(this Parameters presets, string filePath)
-        {
-            Logger.LogNewLine($"Сохранение параметров {filePath}...");
-            try
-            {
-                await using FileStream fileStream = File.Create(filePath);
-                await JsonSerializer.SerializeAsync(fileStream, presets);
-                Logger.LogNewLine($"Параметры в {filePath} успешно сохранен!");
-            }
-            catch (Exception ex)
-            {
-                Logger.LogNewLine(ex.ToString(), LogEnum.Error);
-            }
         }
     }
 }

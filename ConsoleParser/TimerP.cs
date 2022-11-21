@@ -9,37 +9,35 @@ namespace ConsoleParser
 {
     public class TimerP
     {
-        private static TimeSpan s_triggerTimeToStart { get; set; }
-        private static TimeSpan s_triggerTimeToStop { get; set; }
-        private static Parameters s_parameters { get; set; }
-        private static Timer s_timer { get; set; }
-        private static Thread s_thread { get; set; }
-
+        private static TimeSpan _triggerTimeToStart { get; set; }
+        private static TimeSpan _triggerTimeToStop { get; set; }
+        private static Parameters _parameters { get; set; }
+        private static Timer _timer;
 
         public static void Init(Parameters param, TimeSpan startTime, TimeSpan stopTime)
         {
-            s_triggerTimeToStart = startTime;
-            s_triggerTimeToStop = stopTime;
+            _triggerTimeToStart = startTime;
+            _triggerTimeToStop = stopTime;
 
-            Logger.LogNewLine($"Запуск парсера по времени назначен на {s_triggerTimeToStart}");
-            Logger.LogNewLine($"Выключиться в {s_triggerTimeToStop}");
+            Logger.LogNewLine($"Запуск парсера по времени назначен на {_triggerTimeToStart}.");
+            Logger.LogNewLine($"Выключение на {_triggerTimeToStop}.\n");
 
-            s_parameters = param;
-            s_timer = new Timer(new TimerCallback(CheckTimeToStart), new AutoResetEvent(false), 0, 1000);
+            _parameters = param;
+            _timer = new Timer(new TimerCallback(CheckTimeToStart), new AutoResetEvent(false), 0, 1000);
         }
 
         private static void CheckTimeToStart(object state)
         {
             var timeNow = DateTime.Now;
             var timeNowSpan = new TimeSpan(timeNow.Hour, timeNow.Minute, timeNow.Second);
-            if (s_triggerTimeToStart.Hours <= timeNowSpan.Hours && s_triggerTimeToStart.Minutes <= timeNowSpan.Minutes && s_triggerTimeToStart.Seconds <= timeNowSpan.Seconds)
+            if (_triggerTimeToStart.Hours <= timeNowSpan.Hours && _triggerTimeToStart.Minutes <= timeNowSpan.Minutes && _triggerTimeToStart.Seconds <= timeNowSpan.Seconds)
             {
-                s_timer.Dispose();
+                _timer.Dispose();
                 Logger.LogNewLine("Запуск парсера");
 
-                s_timer = new Timer(new TimerCallback(CheckTimeToStop), new AutoResetEvent(false), 0, 1000);
+                _timer = new Timer(new TimerCallback(CheckTimeToStop), new AutoResetEvent(false), 0, 1000);
 
-                Parser.Start(s_parameters);
+                Parser.Start(_parameters);
             }
         }
 
@@ -47,9 +45,9 @@ namespace ConsoleParser
         {
             var timeNow = DateTime.Now;
             var timeNowSpan = new TimeSpan(timeNow.Hour, timeNow.Minute, timeNow.Second);
-            if (s_triggerTimeToStop.Hours <= timeNowSpan.Hours && s_triggerTimeToStop.Minutes <= timeNowSpan.Minutes && s_triggerTimeToStop.Seconds <= timeNowSpan.Seconds)
+            if (_triggerTimeToStop.Hours <= timeNowSpan.Hours && _triggerTimeToStop.Minutes <= timeNowSpan.Minutes && _triggerTimeToStop.Seconds <= timeNowSpan.Seconds)
             {
-                s_timer.Dispose();
+                _timer.Dispose();
                 Console.WriteLine("Этого текста не должно быть видно");
                 Environment.Exit(0);
             }

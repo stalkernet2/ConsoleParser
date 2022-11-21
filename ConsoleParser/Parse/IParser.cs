@@ -7,14 +7,14 @@ using System.Security.AccessControl;
 using System.Text;
 using System.Threading.Tasks;
 using ConsoleParser.Stuff;
+using System.Collections.ObjectModel;
+using OpenQA.Selenium.DevTools.V105.Network;
 
 namespace ConsoleParser.Parse
 {
     public interface IParser
     {
-        public List<string> GetValidURL(string searchCondition, string searchURL, string[] XPaths, out bool noFound, bool usingName = false);
-
-        public List<string> GetValidURL(string searchCondition, string manufacture, string searchURL, string[] XPaths, out bool noFound, bool usingName = false);
+        public List<string> GetValidURL(string searchCondition, string searchURL, string[] XPaths, out bool noFound, string manufacture = "", bool usingName = false);
 
         protected private static Product GetProductsV2(string searchCondition, string searchURL, string[] XPaths, out bool noFound, int validValue = 1)
         {
@@ -71,30 +71,50 @@ namespace ConsoleParser.Parse
             return new Product(nameList, linkList, null);
         }
 
+        // Особая система сбора карточек. Специально для Яндекса
+        // .//article[@data-calc-coords='true'] // карточка товара
+        // Этап получения рейтинга
+        // .//article[@data-calc-coords='true']/div/div/div/a[@target='_blank'] // xpath и img элемента, и a элемента
+
+        // Скрипт, проверяющий на наличие .//div/img элемента 
+        // Если есть - скип, если нет - добавляет карточка товара в новосозданный список
+        // .//div/h3/a/span // получение текста. Принимается как массив слов
+
         protected private static Product GetProductsV3(ChromeDriver chromeDriver, string[] XPaths, out bool noFound)
         {
             noFound = false;
 
-            var asd = chromeDriver.FindElements(By.XPath(XPaths[0])); // основа 
+            var stuff = chromeDriver.FindElements(By.XPath(XPaths[0])); // основа  .//article[@data-calc-coords='true']
 
             var nameList = new List<string>();
             var linkList = new List<string>();
 
-            for (int i = 0; i < asd.Count; i++)
+            for (int i = 0; i < stuff.Count; i++)
             {
-                var validTest = asd[i].FindElements(By.XPath(XPaths[1])).Count; // second
+                if (stuff[i].FindElement(By.XPath(".//div/img")) is not null)
+                    continue;
 
-                if (validTest == 1)
-                {
-                    nameList.Add(asd[i].FindElement(By.XPath(XPaths[2])).GetAttribute("title"));
-                    linkList.Add(asd[i].FindElement(By.XPath(XPaths[1])).GetAttribute("href"));
-                }
+                nameList.Add(ToArray(stuff[i].FindElements(By.XPath(".//div/h3/a/span"))));
+                linkList.Add(stuff[i].FindElement(By.XPath(".//div/div/div/a[@target='_blank']")).GetAttribute("hreft"));
             }
 
             if (nameList.Count == 0 || linkList.Count == 0)
                 noFound = true;
 
             return new Product(nameList, linkList, null);
+        }
+
+        private static string ToArray(ReadOnlyCollection<IWebElement> collection)
+        {
+            var text = new StringBuilder("");
+
+            if (collection.Count <= 0)
+                return text.ToString();
+
+            for (int i = 0; i < collection.Count; i++)
+                text.Append(i != collection.Count ? collection[i] + " " : collection[i]);
+
+            return text.ToString();
         }
     }
 }

@@ -1,4 +1,6 @@
 ﻿using ConsoleParser.Parse;
+using OpenQA.Selenium.Chrome;
+using OpenQA.Selenium.DevTools.V105.Debugger;
 using System.Runtime.InteropServices;
 
 namespace ConsoleParser
@@ -7,6 +9,8 @@ namespace ConsoleParser
     {
         static void Main(string[] args)
         {
+            //DebugMoment();
+
             Logger.Init();
             Logger.LogNewLine("Инициализация логгера успешна!");
 
@@ -91,6 +95,9 @@ namespace ConsoleParser
                         goto case ConsoleKey.D2;
                     case ConsoleKey.NumPad3:
                         goto case ConsoleKey.D3;
+                    case ConsoleKey.Escape:
+                        Environment.Exit(0);
+                        break;
                     default:
                         break;
                 }
@@ -99,6 +106,13 @@ namespace ConsoleParser
             }
 
             Logger.LogNewLine("Нажмите любую клавишу(кроме кнопки выключения компьютера), чтобы закрыть это окно");
+            Console.ReadKey();
+        }
+
+        private static void DebugMoment()
+        {
+            var ya = new YandexDriver("");
+            var we = ya.GetValidURL("asd", "", Array.Empty<string>(), out bool _);
             Console.ReadKey();
         }
     }

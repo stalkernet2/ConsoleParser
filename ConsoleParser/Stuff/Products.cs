@@ -65,22 +65,16 @@ namespace ConsoleParser.Stuff
             {
                 Logger.LogOnLine($"Получение производителей ({i} из {links.Count})...");
                 var htmlDoc = web.Load(links[i]);
-                HtmlNode? temp;
+                string manufacture = string.Empty;
 
                 try
                 {
-                    temp = htmlDoc.DocumentNode.SelectSingleNode(".//div[@class='properties__value properties__item--inline js-prop-value color_222']");
+                    manufacture = htmlDoc.DocumentNode.SelectSingleNode(".//div[@class='properties__value properties__item--inline js-prop-value color_222']").InnerText;//.//img[@class=' lazyloaded']
                 }
-                catch
+                catch (Exception ex)
                 {
-                    Logger.LogOnLine($"Для {links[i]} отсутствует производитель!", LogEnum.Error);
-                    temp = null;
+                    Logger.LogOnLine($"Для {links[i]} отсутствует производитель!({ex})", LogEnum.Error);
                 }
-
-                var manufacture = temp.InnerText ?? string.Empty;
-
-                if (manufacture == string.Empty)
-                    continue;
 
                 manufacture = Regex.Replace(manufacture, @"\s+", "");
 

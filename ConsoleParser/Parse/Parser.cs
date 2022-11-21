@@ -25,6 +25,10 @@ namespace ConsoleParser.Parse
                 SpreadsheetId = parameters.SpreadsheetId,
             };
 
+            YandexDriver? yandexDriver = null;
+            if (parameters.Yandex)
+                yandexDriver = new YandexDriver(parameters.CaptchaKey);
+
             var otidoDriver = new ChromeDriver();
 
             for (int pageNum = parameters.StartPage; pageNum <= parameters.EndPage; pageNum++)
@@ -51,8 +55,9 @@ namespace ConsoleParser.Parse
                     Logger.LogNewLine($"Получение отзывов для \"{product.Names[otidoProductIndex]}\" ({otidoProductIndex + 1} из {product.Articules.Count})...");
 
                     var otidoHref = product.Links[otidoProductIndex];
-                    var ozonList = new List<string>() { "" };
-                    var vseinstrList = new List<string>() { "" };
+                    var ozonList = new List<string>();
+                    var vseinstrList = new List<string>();
+                    var yandexList = new List<string>();
 
                     //Начало работы драйвера "ОЗОН"
 
@@ -108,21 +113,26 @@ namespace ConsoleParser.Parse
                         Logger.LogNewLine("└─Конец сбора со ВсехИнструментов");
                     }
 
-                    if (ozonList.Count <= 0 && vseinstrList.Count <= 0)
+                    if (parameters.Yandex && yandexDriver is not null)
+                        yandexList = yandexDriver.GetValidURL(product.Names[otidoProductIndex], "", Array.Empty<string>(), out bool _);
+
+                    if (ozonList.Count <= 0 && vseinstrList.Count <= 0 && yandexList.Count <= 0)
                         continue;
 
-                    if (ozonList[0] == "" && vseinstrList[0] == "")
-                        continue;
                     Logger.LogNewLine("Отправка в Гугл таблицу...");
 
-                    var length = ozonList.Count > vseinstrList.Count ? ozonList.Count : vseinstrList.Count;
+                    var length = ozonList.Count > vseinstrList.Count ? 
+                                 (ozonList.Count > yandexList.Count ? ozonList.Count : yandexList.Count) :
+                                 (vseinstrList.Count > yandexList.Count ? vseinstrList.Count : yandexList.Count);
+
                     for (int h = 0; h < length; h++)
                     {
                         Logger.LogOnLine($"Отправлено {h + 1} из {length}");
                         gSheets.CreateEntry("Лист1!A1",
                                             new List<object> { otidoHref,
                                             h < ozonList.Count ? ozonList[h] : "",
-                                            h < vseinstrList.Count ? vseinstrList[h] : ""});
+                                            h < vseinstrList.Count ? vseinstrList[h] : "",
+                                            h < yandexList.Count ? yandexList[h] : ""});
                     }
                     Logger.LogNewLine("...успешно!");
 
@@ -135,5 +145,23 @@ namespace ConsoleParser.Parse
             Logger.LogNewLine($"Парсер успешно прошелся с {parameters.StartPage} по {parameters.EndPage} страницу!");
             return Task.CompletedTask;
         }
+
+        //private static List<string> Harvester(IParser harvester, string searchString, string addSearchString, string[] xPaths, string manufacturer = "")
+        //{
+        //    var strings = new List<string>() { "" };
+        //    var strings.AddRange(harvester.GetValidURL(searchCondition: addSearchString,
+        //                                               manufacture: manufacturer,
+        //                                               searchURL: "https://www.ozon.ru/search/?text=",
+        //                                               XPaths: xPaths,
+        //                                               noFound: out bool didntFoundByName));
+
+        //    strings.AddRange(harvester.GetValidURL(searchCondition: searchString,
+        //                                    manufacture: manufacturer,
+        //                                    searchURL: "https://www.ozon.ru/search/?text=",
+        //                                    XPaths: xPaths,
+        //                                    noFound: out _, // интересная ситуация
+        //                                    usingName: true));
+        //    return strings;
+        //}
     }
 }

@@ -1,4 +1,5 @@
-﻿using OpenQA.Selenium.Chrome;
+﻿using ConsoleParser.Parse.Filters;
+using OpenQA.Selenium.Chrome;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,12 +10,9 @@ namespace ConsoleParser.Parse
 {
     public class VseInstrumenty : IParser
     {
-        public List<string> GetValidURL(string searchCondition, string searchURL, string[] XPaths, out bool noFound, bool usingName = false)
+        public List<string> GetValidURL(string searchCondition, string searchURL, string[] XPaths, out bool noFound, string manufacture = "", bool usingName = false)
         {
-            var outList = new List<string>()
-            {
-                ""
-            };
+            var list = new List<string>();
 
             var product = IParser.GetProductsV2(searchCondition, searchURL, XPaths, out noFound);
 
@@ -36,15 +34,8 @@ namespace ConsoleParser.Parse
                     continue;
 
                 Logger.LogOnLine($"│├Получило оценку {i + 1} из {productQuantity}");
-                outList.Add(OtherStuff.ClearGarbage(product.Links[i], '?') + (accuracy <= 90d ? " " + (int)accuracy + "%" : ""));
+                list.Add(OtherStuff.ClearGarbage(product.Links[i], '?') + (accuracy <= 90d ? " " + (int)accuracy + "%" : ""));
             }
-
-            return outList;
-        }
-
-        public List<string> GetValidURL(string searchCondition, string manufacture, string searchURL, string[] XPaths, out bool noFound, bool usingName = false)
-        {
-            var list = GetValidURL(searchCondition, searchURL, XPaths, out noFound, usingName);
 
             Logger.LogNewLine("│├Фильтрация по производителю через ссылку...");
             var result = Filter.ByManufacturers(list, manufacture);

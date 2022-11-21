@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ConsoleParser.Parse
+namespace ConsoleParser.Parse.Filters
 {
     public class Filter
     {
@@ -21,9 +21,6 @@ namespace ConsoleParser.Parse
 
                 Logger.LogOnLine($"│├Отфильтровано {i + 1} из {links.Count}");
             }
-
-            if (result.Count == 0)
-                result.Add("");
 
             return result;
         }

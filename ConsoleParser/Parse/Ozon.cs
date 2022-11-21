@@ -10,12 +10,9 @@ namespace ConsoleParser.Parse
 {
     public class Ozon : IParser
     {
-        public List<string> GetValidURL(string searchCondition, string searchURL, string[] XPaths, out bool noFound, bool usingName = false)
+        public List<string> GetValidURL(string searchCondition, string searchURL, string[] XPaths, out bool noFound, string manufacture = "", bool usingName = false)
         {
-            var outList = new List<string>()
-            {
-                ""
-            };
+            var outList = new List<string>();
 
             var product = IParser.GetProductsV2(searchCondition, searchURL, XPaths, out noFound, 2);
 
@@ -40,11 +37,6 @@ namespace ConsoleParser.Parse
 
             Logger.LogNewLine($"│└\"{searchCondition}\" с озона успешно собран!");
             return outList;
-        }
-
-        public List<string> GetValidURL(string searchCondition, string manufacture, string searchURL, string[] XPaths, out bool noFound, bool usingName = false)
-        {
-            throw new NotImplementedException();
         }
     }
 }
