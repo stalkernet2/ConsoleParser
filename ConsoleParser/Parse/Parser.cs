@@ -7,14 +7,12 @@ namespace ConsoleParser.Parse
 {
     public class Parser
     {
-        private static GSheets gSheets;
-
         public static Task Start(Parameters parameters)
         {
             IParser searcher;
 
             Logger.LogNewLine("Инициализация Гугл таблиц...");
-            gSheets = new GSheets(parameters.SecretJson, parameters.APIName)
+            var gSheets = new GSheets(parameters.SecretJson, parameters.APIName)
             {
                 SpreadsheetId = parameters.SpreadsheetId,
             };
