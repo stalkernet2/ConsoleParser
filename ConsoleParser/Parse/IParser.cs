@@ -1,14 +1,8 @@
-﻿using OpenQA.Selenium.Chrome;
-using OpenQA.Selenium;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.AccessControl;
-using System.Text;
-using System.Threading.Tasks;
-using ConsoleParser.Stuff;
+﻿using System.Text;
 using System.Collections.ObjectModel;
-using OpenQA.Selenium.DevTools.V105.Network;
+using OpenQA.Selenium;
+using OpenQA.Selenium.Chrome;
+using ConsoleParser.Stuffs;
 
 namespace ConsoleParser.Parse
 {
@@ -16,7 +10,7 @@ namespace ConsoleParser.Parse
     {
         public List<string> GetValidURL(string searchCondition, string searchURL, string[] XPaths, out bool noFound, string manufacture = "", bool usingName = false);
 
-        protected private static Product GetProductsV2(string searchCondition, string searchURL, string[] XPaths, out bool noFound, int validValue = 1)
+        protected private static Stuff GetProductsV2(string searchCondition, string searchURL, string[] XPaths, out bool noFound, int validValue = 1)
         {
             Logger.LogNewLine("│┌Попытка запуска сборщика...");
             noFound = false;
@@ -36,7 +30,7 @@ namespace ConsoleParser.Parse
                     if (i == 2)
                     {
                         Logger.LogNewLine("│├...провальная", LogEnum.Error);
-                        return new Product(new List<string>(), new List<string>(), new List<string>());
+                        return new Stuff(new List<string>(), new List<string>());
                     }
                 }
             }
@@ -68,7 +62,7 @@ namespace ConsoleParser.Parse
                 noFound = true;
 
             Logger.LogNewLine("│├...успешен!");
-            return new Product(nameList, linkList, null);
+            return new Stuff(nameList, linkList);
         }
 
         // Особая система сбора карточек. Специально для Яндекса
@@ -80,28 +74,28 @@ namespace ConsoleParser.Parse
         // Если есть - скип, если нет - добавляет карточка товара в новосозданный список
         // .//div/h3/a/span // получение текста. Принимается как массив слов
 
-        protected private static Product GetProductsV3(ChromeDriver chromeDriver, string[] XPaths, out bool noFound)
+        protected private static Stuff GetProductsV3(ChromeDriver chromeDriver, out bool noFound)
         {
             noFound = false;
 
-            var stuff = chromeDriver.FindElements(By.XPath(XPaths[0])); // основа  .//article[@data-calc-coords='true']
+            var stuff = chromeDriver.FindElements(By.XPath(".//article[@data-calc-coords='true']")); // основа  .//article[@data-calc-coords='true']
 
             var nameList = new List<string>();
             var linkList = new List<string>();
 
             for (int i = 0; i < stuff.Count; i++)
             {
-                if (stuff[i].FindElement(By.XPath(".//div/img")) is not null)
+                if (stuff[i].FindElements(By.XPath(".//div[@role='img']")).Count == 0)
                     continue;
 
                 nameList.Add(ToArray(stuff[i].FindElements(By.XPath(".//div/h3/a/span"))));
-                linkList.Add(stuff[i].FindElement(By.XPath(".//div/div/div/a[@target='_blank']")).GetAttribute("hreft"));
+                linkList.Add(stuff[i].FindElement(By.XPath(".//div/div/div/a[@target='_blank']")).GetAttribute("href"));
             }
 
             if (nameList.Count == 0 || linkList.Count == 0)
                 noFound = true;
 
-            return new Product(nameList, linkList, null);
+            return new Stuff(nameList, linkList);
         }
 
         private static string ToArray(ReadOnlyCollection<IWebElement> collection)
@@ -112,7 +106,7 @@ namespace ConsoleParser.Parse
                 return text.ToString();
 
             for (int i = 0; i < collection.Count; i++)
-                text.Append(i != collection.Count ? collection[i] + " " : collection[i]);
+                text.Append(i != collection.Count ? collection[i].Text + " " : collection[i].Text);
 
             return text.ToString();
         }

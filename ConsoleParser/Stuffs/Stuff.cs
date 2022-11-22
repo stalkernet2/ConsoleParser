@@ -1,12 +1,7 @@
-﻿using OpenQA.Selenium;
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.ObjectModel;
+using OpenQA.Selenium;
 
-namespace ConsoleParser.Stuff
+namespace ConsoleParser.Stuffs
 {
     public class Stuff
     {
@@ -20,7 +15,7 @@ namespace ConsoleParser.Stuff
             Links = GetHrefList(links);
         }
 
-        protected private Stuff(List<string> names, List<string> links)
+        public Stuff(List<string> names, List<string> links)
         {
             Names = names;
             Links = links;

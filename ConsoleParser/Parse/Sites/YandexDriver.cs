@@ -1,15 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using OpenQA.Selenium.Chrome;
+﻿using System.Net;
+using ConsoleParser.Parse.Filters;
 using OpenQA.Selenium;
-using System.Net;
-using System.Diagnostics;
-using ConsoleParser;
+using OpenQA.Selenium.Chrome;
 using TwoCaptcha.Captcha;
-using TwoCaptcha;
 
 namespace ConsoleParser.Parse
 {
@@ -52,7 +45,7 @@ namespace ConsoleParser.Parse
                 _firstStart = false;
             }
 
-            if(_driver.FindElements(By.XPath(".//div[@class='CheckboxCaptcha-Anchor']")).Count > 0)
+            if (_driver.FindElements(By.XPath(".//div[@class='CheckboxCaptcha-Anchor']")).Count > 0)
                 Captcha();
 
             _driver.FindElement(By.XPath(".//input[@type='text']")).Clear();
@@ -61,29 +54,9 @@ namespace ConsoleParser.Parse
 
             Thread.Sleep(5000);
 
-            XPaths = new string[3] { ".//article[@data-auto='product-snippet']", ".//a[@data-zone-name=\"rating\"]", ".//a[@data-auto=\"product-title\"]" };
+            var product = IParser.GetProductsV3(_driver, out noFound);
 
-            var product = IParser.GetProductsV3(_driver, XPaths, out noFound);
-
-            var validURL = new List<string>();
-
-            for (int i = 0; i < product.Names.Count; i++)
-            {
-                var accuracy = 0d;
-                var splitedText = searchCondition.Split(' ');
-                var toAdd = 100d / splitedText.Length;
-
-                for (int h = 0; h < splitedText.Length; h++)
-                    if (product.Names[i].Contains(splitedText[h]))
-                        accuracy += toAdd;
-
-                if (accuracy <= 16d)
-                    continue;
-
-                validURL.Add(OtherStuff.ClearGarbage(product.Links[i], '?') + (accuracy <= 90d ? " " + (int)accuracy + "%" : ""));
-            }
-
-            return validURL;
+            return Filter.ByAccurasyLevel(Filter.ByManufacturers(product, manufacture), searchCondition);
         }
 
         private void Captcha()

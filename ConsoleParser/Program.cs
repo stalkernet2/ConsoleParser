@@ -1,7 +1,5 @@
-﻿using ConsoleParser.Parse;
-using OpenQA.Selenium.Chrome;
-using OpenQA.Selenium.DevTools.V105.Debugger;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
+using ConsoleParser.Parse;
 
 namespace ConsoleParser
 {
