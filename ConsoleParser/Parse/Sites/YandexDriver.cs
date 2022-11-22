@@ -36,6 +36,7 @@ namespace ConsoleParser.Parse
 
         public List<string> GetValidURL(string searchCondition, string searchURL, string[] XPaths, out bool noFound, string manufacture = "", bool usingName = false)
         {
+            Logger.LogNewLine("│┌Попытка запуска сборщика...");
             if (!_driver.Url.StartsWith("https://market.yandex.ru/"))
                 _driver.Navigate().GoToUrl("https://market.yandex.ru/");
 
@@ -45,6 +46,7 @@ namespace ConsoleParser.Parse
                 _firstStart = false;
             }
 
+            Logger.LogNewLine("│├Проверка на наличие капчи...");
             if (_driver.FindElements(By.XPath(".//div[@class='CheckboxCaptcha-Anchor']")).Count > 0)
                 Captcha();
 
@@ -52,15 +54,18 @@ namespace ConsoleParser.Parse
             _driver.FindElement(By.XPath(".//input[@type='text']")).SendKeys(searchCondition);
             _driver.FindElement(By.XPath(".//button[@type='submit']")).Click();
 
-            Thread.Sleep(5000);
+            Thread.Sleep(7500);
 
             var product = IParser.GetProductsV3(_driver, out noFound);
+
+            Logger.LogNewLine($"│└\"{searchCondition}\" с яндекса успешно собран!");
 
             return Filter.ByAccurasyLevel(Filter.ByManufacturers(product, manufacture), searchCondition);
         }
 
         private void Captcha()
         {
+            Logger.LogNewLine("│├Прохождение капчи...");
             _driver.FindElement(By.XPath(".//div[@class='CheckboxCaptcha-Anchor']")).Click();
             Thread.Sleep(1000);
             var textBoxes = _driver.FindElements(By.XPath(".//input[@class='Textinput-Control']"));
@@ -75,7 +80,7 @@ namespace ConsoleParser.Parse
                     client.DownloadFile(imageURL, "captcha.jpg");
 
                 var captcha = new Normal("captcha.jpg");
-
+                Logger.LogNewLine("│├Получаем код капчи...");
                 solver.Solve(captcha).Wait();
 
                 _driver.FindElement(By.XPath(".//input[@class='Textinput-Control']")).SendKeys(captcha.Code);

@@ -86,7 +86,11 @@ namespace ConsoleParser.Parse
                     }
 
                     if (parameters.Yandex && yandexDriver is not null)
+                    {
+                        Logger.LogNewLine($"┌─С Я.Маркета...");
                         yandexList = yandexDriver.GetValidURL(product.Names[otidoProductIndex], "", Array.Empty<string>(), out _);
+                        Logger.LogNewLine("└─Конец сбора с Я.Маркета");
+                    }
 
                     if (ozonList.Count <= 0 && vseinstrList.Count <= 0 && yandexList.Count <= 0)
                         continue;

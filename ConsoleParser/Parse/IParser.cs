@@ -78,15 +78,26 @@ namespace ConsoleParser.Parse
         {
             noFound = false;
 
+            Logger.LogNewLine("│├Получение карточек товаров...");
             var stuff = chromeDriver.FindElements(By.XPath(".//article[@data-calc-coords='true']")); // основа  .//article[@data-calc-coords='true']
+            Logger.LogNewLine($"│├Получено {stuff.Count}");
 
             var nameList = new List<string>();
             var linkList = new List<string>();
 
+            Logger.LogNewLine("│├Сбор информации товара...");
             for (int i = 0; i < stuff.Count; i++)
             {
-                if (stuff[i].FindElements(By.XPath(".//div[@role='img']")).Count == 0)
-                    continue;
+                Logger.LogOnLine($"│├Собрано {i + 1} из {stuff.Count}...");
+                try
+                {
+                    if (stuff[i].FindElements(By.XPath(".//div[@role='img']")).Count == 0)
+                        continue;
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogNewLine("│├Неудалось найти нужный див(возможно страница не успела загрузиться)...");
+                }
 
                 nameList.Add(ToArray(stuff[i].FindElements(By.XPath(".//div/h3/a/span"))));
                 linkList.Add(stuff[i].FindElement(By.XPath(".//div/div/div/a[@target='_blank']")).GetAttribute("href"));
