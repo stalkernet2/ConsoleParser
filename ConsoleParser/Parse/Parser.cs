@@ -63,18 +63,8 @@ namespace ConsoleParser.Parse
                                                                                 $".//span[@class='{parameters.AClass}']",
                                                                                 $".//div/a/span/span",
                                                                                 $".//a[@data-prerender='true']"},
-                                                        noFound: out bool didntFoundByName, // интересная ситуация
+                                                        noFound: out _,
                                                         usingName: true);
-
-
-                        if (didntFoundByName)
-                            ozonList.AddRange(searcher.GetValidURL(searchCondition: product.Articules[otidoProductIndex],
-                                                                   searchURL: "https://www.ozon.ru/search/?text=",
-                                                                   XPaths: new string[4] { $".//div[@class='{parameters.DivClass}']",
-                                                                                           $".//span[@class='{parameters.AClass}']",
-                                                                                           $".//div/a/span/span",
-                                                                                           $".//a[@data-prerender='true']"},
-                                                                   noFound: out _));
                         Logger.LogNewLine("└─Конец сбора с Озона");
                     }
 
@@ -84,29 +74,19 @@ namespace ConsoleParser.Parse
                     {
                         Logger.LogNewLine($"┌─С ВсеИнструментов...");
                         searcher = new VseInstrumenty();
-                        vseinstrList = searcher.GetValidURL(searchCondition: product.Articules[otidoProductIndex],
+                        vseinstrList = searcher.GetValidURL(searchCondition: product.Names[otidoProductIndex],
                                                             manufacture: product.Manufacturers[otidoProductIndex],
                                                             searchURL: "https://chelyabinsk.vseinstrumenti.ru/search_main.php?what=",
                                                             XPaths: new string[4] { ".//div[@class='product-tile grid-item']",
                                                                                     ".//div[@class='rating-count']",
                                                                                     ".//div[@class='title']/a[@class='link']",
                                                                                     ".//a[@class='rating -link']"},
-                                                            noFound: out bool didntFoundByArticul); // интересная ситуация
-                        if (didntFoundByArticul)
-                            vseinstrList.AddRange(searcher.GetValidURL(searchCondition: product.Names[otidoProductIndex],
-                                                                       manufacture: product.Manufacturers[otidoProductIndex],
-                                                                       searchURL: "https://chelyabinsk.vseinstrumenti.ru/search_main.php?what=",
-                                                                       XPaths: new string[4] { ".//div[@class='product-tile grid-item']",
-                                                                                    ".//div[@class='rating-count']",
-                                                                                    ".//div[@class='title']/a[@class='link']",
-                                                                                    ".//a[@class='rating -link']"},
-                                                                       noFound: out _,
-                                                                       usingName: true));
+                                                            noFound: out bool _);
                         Logger.LogNewLine("└─Конец сбора со ВсехИнструментов");
                     }
 
                     if (parameters.Yandex && yandexDriver is not null)
-                        yandexList = yandexDriver.GetValidURL(product.Names[otidoProductIndex], "", Array.Empty<string>(), out bool _);
+                        yandexList = yandexDriver.GetValidURL(product.Names[otidoProductIndex], "", Array.Empty<string>(), out _);
 
                     if (ozonList.Count <= 0 && vseinstrList.Count <= 0 && yandexList.Count <= 0)
                         continue;
