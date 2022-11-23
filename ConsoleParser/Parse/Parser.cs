@@ -80,7 +80,7 @@ namespace ConsoleParser.Parse
                                                             XPaths: new string[4] { ".//div[@class='product-tile grid-item']",
                                                                                     ".//div[@class='rating-count']",
                                                                                     ".//div[@class='title']/a[@class='link']",
-                                                                                    ".//a[@class='rating -link']"},
+                                                                                    ".//a[@data-behavior='product-image']"},
                                                             noFound: out bool _);
                         Logger.LogNewLine("└─Конец сбора со ВсехИнструментов");
                     }
