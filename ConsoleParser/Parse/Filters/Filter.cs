@@ -51,5 +51,36 @@ namespace ConsoleParser.Parse.Filters
 
             return new Stuff(names, links);
         }
+
+        public static Stuff ByTriggerNum(Stuff product, string searchCondition) // Для яндекса
+        {
+            if (product.Names.Count < 1)
+                return new Stuff();
+
+            var stuff = new Stuff();
+
+            for (int i = 0; i < product.Names.Count; i++)
+            {
+                var splitedText = product.Names[i].Split(' ');
+                var validNum = "";
+                for (int j = 0; j < splitedText.Length; j++)
+                {
+                    if (!char.IsDigit(splitedText[j][0]))
+                        continue;
+
+                    validNum = splitedText[j];
+                    break;
+                }
+
+                if (searchCondition.Contains(validNum))
+                {
+                    stuff.Names.Add(product.Names[i]);
+                    stuff.Links.Add(product.Links[i]);
+                }
+                    
+            }
+
+            return stuff;
+        }
     }
 }

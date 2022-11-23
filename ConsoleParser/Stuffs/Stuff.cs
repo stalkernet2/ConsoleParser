@@ -9,10 +9,10 @@ namespace ConsoleParser.Stuffs
 
         public List<string> Links { get; set; }
 
-        public Stuff(ReadOnlyCollection<IWebElement> names, ReadOnlyCollection<IWebElement> links)
+        public Stuff()
         {
-            Names = GetTextList(names);
-            Links = GetHrefList(links);
+            Names = new List<string>();
+            Links = new List<string>();
         }
 
         public Stuff(List<string> names, List<string> links)
