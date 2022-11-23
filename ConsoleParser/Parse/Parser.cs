@@ -63,7 +63,6 @@ namespace ConsoleParser.Parse
                                                                                 $".//span[@class='{parameters.AClass}']",
                                                                                 $".//div/a/span/span",
                                                                                 $".//a[@data-prerender='true']"},
-                                                        noFound: out _,
                                                         usingName: true);
                         Logger.LogNewLine("└─Конец сбора с Озона");
                     }
@@ -80,15 +79,14 @@ namespace ConsoleParser.Parse
                                                             XPaths: new string[4] { ".//div[@class='product-tile grid-item']",
                                                                                     ".//div[@class='rating-count']",
                                                                                     ".//div[@class='title']/a[@class='link']",
-                                                                                    ".//a[@data-behavior='product-image']"},
-                                                            noFound: out bool _);
+                                                                                    ".//a[@data-behavior='product-image']"});
                         Logger.LogNewLine("└─Конец сбора со ВсехИнструментов");
                     }
 
                     if (parameters.Yandex && yandexDriver is not null)
                     {
                         Logger.LogNewLine($"┌─С Я.Маркета...");
-                        yandexList = yandexDriver.GetValidURL(product.Names[otidoProductIndex], "", Array.Empty<string>(), out _);
+                        yandexList = yandexDriver.GetValidURL(product.Names[otidoProductIndex], "", Array.Empty<string>());
                         Logger.LogNewLine("└─Конец сбора с Я.Маркета");
                     }
 

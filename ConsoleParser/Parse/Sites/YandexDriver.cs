@@ -34,7 +34,7 @@ namespace ConsoleParser.Parse
             _captchaKey = captchaKey;
         }
 
-        public List<string> GetValidURL(string searchCondition, string searchURL, string[] XPaths, out bool noFound, string manufacture = "", bool usingName = false)
+        public List<string> GetValidURL(string searchCondition, string searchURL, string[] XPaths, string manufacture = "", bool usingName = false)
         {
             Logger.LogNewLine("│┌Попытка запуска сборщика...");
             if (!_driver.Url.StartsWith("https://market.yandex.ru/"))
@@ -56,7 +56,7 @@ namespace ConsoleParser.Parse
 
             Thread.Sleep(7500);
 
-            var product = Filter.ByManufacturers(IParser.GetProductsV3(_driver, out noFound), manufacture);
+            var product = Filter.ByManufacturers(IParser.GetProductsV3(_driver), manufacture);
             product = Filter.ByTriggerNum(product, searchCondition);
 
             Logger.LogNewLine($"│└\"{searchCondition}\" с яндекса успешно собран!");
@@ -83,7 +83,7 @@ namespace ConsoleParser.Parse
                 var captcha = new Normal("captcha.jpg");
                 Logger.LogNewLine("│├Получаем код капчи...");
                 solver.Solve(captcha).Wait();
-
+                Logger.LogNewLine($"│├Вводим \"{captcha.Code}\"");
                 _driver.FindElement(By.XPath(".//input[@class='Textinput-Control']")).SendKeys(captcha.Code);
                 _driver.FindElement(By.XPath(".//button[@type='submit']")).Click();
 

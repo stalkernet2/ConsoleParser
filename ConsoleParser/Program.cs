@@ -112,7 +112,7 @@ namespace ConsoleParser
         private static void DebugMoment()
         {
             var ya = new YandexDriver("");
-            var we = ya.GetValidURL("asd", "", Array.Empty<string>(), out bool _);
+            var we = ya.GetValidURL("asd", "", Array.Empty<string>());
             Console.ReadKey();
         }
     }

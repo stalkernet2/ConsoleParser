@@ -65,7 +65,7 @@ namespace ConsoleParser.Parse.Filters
                 var validNum = "";
                 for (int j = 0; j < splitedText.Length; j++)
                 {
-                    if (splitedText.Length < 1)
+                    if (splitedText[j].Length < 1)
                         continue;
                     if (!char.IsDigit(splitedText[j][0]))
                         continue;
