@@ -30,7 +30,7 @@ namespace ConsoleParser.Parse
                     if (i == 2)
                     {
                         Logger.LogNewLine("│├...провальная", LogEnum.Error);
-                        return new Stuff(new List<string>(), new List<string>());
+                        return new Stuff();
                     }
                 }
             }

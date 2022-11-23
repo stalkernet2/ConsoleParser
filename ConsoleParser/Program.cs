@@ -15,24 +15,6 @@ namespace ConsoleParser
             Logger.LogNewLine("Версия .Net: " + RuntimeInformation.FrameworkDescription);
             Logger.LogNewLine("Версия приложения: " + typeof(Program).Assembly.GetName().Version);
 
-            Logger.LogNewLine("Дивы и А классы для озона проверены?(y/n)", LogEnum.Action);
-
-            while (true)
-            {
-                var pressedKey = Console.ReadKey().Key;
-
-                if (pressedKey == ConsoleKey.Y)
-                    break;
-                else if (pressedKey == ConsoleKey.N)
-                {
-                    Logger.LogNewLine("Ты знаешь что делать...(измени их в файле, находящиеся по пути config/presets.json)", LogEnum.Warning);
-                    Thread.Sleep(5000);
-                    return;
-                }
-
-                Logger.OnLine();
-            }
-
             var parameters = new Parameters("config/presets.json");
 
             Logger.LogNewLine("StartPage:      " + parameters.StartPage);
@@ -46,6 +28,26 @@ namespace ConsoleParser
             Logger.LogNewLine("SecretJSON:     " + parameters.SecretJson);
             Logger.LogNewLine("APIName:        " + parameters.APIName);
             Logger.LogNewLine("SpreadsheetId:  " + parameters.SpreadsheetId);
+
+            if (parameters.Ozon)
+            {
+                Logger.LogNewLine("Дивы и А классы для озона проверены?(y/n)", LogEnum.Action);
+                while (true)
+                {
+                    var pressedKey = Console.ReadKey().Key;
+
+                    if (pressedKey == ConsoleKey.Y)
+                        break;
+                    else if (pressedKey == ConsoleKey.N)
+                    {
+                        Logger.LogNewLine("Ты знаешь что делать...(измени их в файле, находящиеся по пути config/presets.json)", LogEnum.Warning);
+                        Thread.Sleep(5000);
+                        return;
+                    }
+
+                    Logger.OnLine();
+                }
+            }
 
             if (parameters.EndPage < parameters.StartPage)
             {
