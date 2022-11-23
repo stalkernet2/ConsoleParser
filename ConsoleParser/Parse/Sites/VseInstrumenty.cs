@@ -10,10 +10,6 @@ namespace ConsoleParser.Parse
 
             var result = Filter.ByAccurasyLevel(Filter.ByManufacturers(product, manufacture), searchCondition);
 
-            for (int i = 0; i < result.Count; i++) // костыль
-                if (result[i].EndsWith("otzyvy/"))
-                    result[i] = result[i].Remove(result[i].Length - 7);
-
             Logger.LogNewLine($"│└{searchCondition} с озона успешно собрано!");
             return result;
         }

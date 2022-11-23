@@ -96,7 +96,7 @@ namespace ConsoleParser.Parse
                 }
                 catch (Exception ex)
                 {
-                    Logger.LogNewLine("│├Неудалось найти нужный див(возможно страница не успела загрузиться)...");
+                    Logger.LogNewLine("│├Неудалось найти нужный див(возможно страница не успела загрузиться)...", LogEnum.Error);
                 }
 
                 nameList.Add(ToArray(stuff[i].FindElements(By.XPath(".//div/h3/a/span"))));

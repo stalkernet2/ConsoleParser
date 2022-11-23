@@ -29,23 +29,6 @@ namespace ConsoleParser.Parse.Filters
             
             return result;
         }
-        public static List<string> ByManufacturers(List<string> links, string manufacture)
-        {
-            List<string> result = new();
-
-            Logger.LogNewLine("│├Фильтрация по производителю через ссылку...");
-            Console.WriteLine();
-
-            for (int i = 0; i < links.Count; i++)
-            {
-                if (links[i].Contains(manufacture))
-                    result.Add(links[i]);
-
-                Logger.LogOnLine($"│├Отфильтровано {i + 1} из {links.Count}");
-            }
-
-            return result;
-        }
 
         public static Stuff ByManufacturers(Stuff product, string manufacture)
         {
