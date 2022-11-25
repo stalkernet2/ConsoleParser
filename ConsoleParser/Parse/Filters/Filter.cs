@@ -1,4 +1,5 @@
 ﻿using ConsoleParser.Stuffs;
+using System.Linq;
 
 namespace ConsoleParser.Parse.Filters
 {
@@ -35,12 +36,14 @@ namespace ConsoleParser.Parse.Filters
             var names = new List<string>();
             var links = new List<string>();
 
+            var manufacturer = manufacture.Split(' ');
+
             Logger.LogNewLine("│├Фильтрация по наличию производителя в наименовании...");
             Console.WriteLine();
 
             for (int i = 0; i < product.Links.Count; i++)
             {
-                if (product.Names[i].ToLower().Contains(manufacture))
+                if (product.Names[i].ToLower().Contains(manufacturer[0]))
                 {
                     names.Add(product.Names[i]);
                     links.Add(product.Links[i]);
@@ -58,23 +61,26 @@ namespace ConsoleParser.Parse.Filters
                 return new Stuff();
 
             var stuff = new Stuff();
+            var validNum = "";
+
+            var splitedCondition = searchCondition.Split(' ');
+
+            for (int i = 0; i < splitedCondition.Length; i++)
+            {
+                for (int h = 0; h < splitedCondition[i].Length; h++)
+                {
+                    if (!char.IsDigit(splitedCondition[i][h]))
+                        continue;
+
+                    validNum = splitedCondition[i];
+                    break;
+                }
+            }
 
             for (int i = 0; i < product.Names.Count; i++)
             {
-                var splitedText = product.Names[i].Split(' ');
-                var validNum = "";
-                for (int j = 0; j < splitedText.Length; j++)
-                {
-                    if (splitedText[j].Length < 1)
-                        continue;
-                    if (!char.IsDigit(splitedText[j][0]))
-                        continue;
-
-                    validNum = splitedText[j];
-                    break;
-                }
-
-                if (searchCondition.Contains(validNum))
+                
+                if (product.Names.Contains(validNum))
                 {
                     stuff.Names.Add(product.Names[i]);
                     stuff.Links.Add(product.Links[i]);

@@ -17,23 +17,22 @@ namespace ConsoleParser.Parse
                 SpreadsheetId = parameters.SpreadsheetId,
             };
 
+            var mainDriver = new ChromeDriver();
+
             YandexDriver? yandexDriver = null;
             if (parameters.Yandex)
                 yandexDriver = new YandexDriver(parameters.CaptchaKey);
 
-            var otidoDriver = new ChromeDriver();
-
             for (int pageNum = parameters.StartPage; pageNum <= parameters.EndPage; pageNum++)
             {
-                // Начало работы драйвера "ОТИДО"
                 Logger.LogNewLine($"Переход на {parameters.URL}?PAGEN_1={pageNum}...");
-                otidoDriver.Navigate().GoToUrl(parameters.URL + "?PAGEN_1=" + pageNum);
+                mainDriver.Navigate().GoToUrl(parameters.URL + "?PAGEN_1=" + pageNum);
 
                 Logger.LogNewLine("Ожидание в одну секунду...");
                 Thread.Sleep(1000);
 
                 Logger.LogNewLine("Сбор товаров для парсинга...");
-                var product = new Products(otidoDriver.FindElements(By.XPath(".//div[@class='catalog-block']//div[@itemprop='itemListElement']")));
+                var product = new Products(mainDriver.FindElements(By.XPath(".//div[@class='catalog-block']//div[@itemprop='itemListElement']")));
 
                 if (product.Names.Count == 0)
                     continue;
@@ -86,7 +85,7 @@ namespace ConsoleParser.Parse
                     if (parameters.Yandex && yandexDriver is not null)
                     {
                         Logger.LogNewLine($"┌─С Я.Маркета...");
-                        yandexList = yandexDriver.GetValidURL(product.Names[otidoProductIndex], "", Array.Empty<string>());
+                        yandexList = yandexDriver.GetValidURL(product.Names[otidoProductIndex], "https://market.yandex.ru/", Array.Empty<string>(), product.Manufacturers[otidoProductIndex]);
                         Logger.LogNewLine("└─Конец сбора с Я.Маркета");
                     }
 
@@ -113,8 +112,8 @@ namespace ConsoleParser.Parse
                     GC.Collect();
                 }
             }
-            otidoDriver.Close();
-            otidoDriver.Dispose();
+            mainDriver.Close();
+            mainDriver.Dispose();
 
             Logger.LogNewLine($"Парсер успешно прошелся с {parameters.StartPage} по {parameters.EndPage} страницу!");
             return Task.CompletedTask;

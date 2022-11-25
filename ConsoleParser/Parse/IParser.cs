@@ -3,6 +3,7 @@ using System.Collections.ObjectModel;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using ConsoleParser.Stuffs;
+using OpenQA.Selenium.DevTools.V105.Debugger;
 
 namespace ConsoleParser.Parse
 {
@@ -71,22 +72,22 @@ namespace ConsoleParser.Parse
         // .//div/h3/a/span // получение текста. Принимается как массив слов
 
         // 1 тип
-        // основа - <article data-autotest-id="product-snippet" class="_3yjG2 _33RIm cia-vs cia-cs" data-tid="e8d6ef04 cb374e64 a4329bfa" data-tid-prop="e8d6ef04 cb374e64 a4329bfa" data-zone-name="snippet-card" data-calc-coords="true">
+        // основа - <article data-autotest-id="product-snippet" data-zone-name="snippet-card" data-calc-coords="true">
         // проверка - .//div/div[not(@data-tid)]/div[not(@data-zone-name='picture')]/a[@target='_blank']
         // имя - .//div/h3/a/span
         // линк - .//div/div[not(@data-tid)]/div[not(@data-zone-name='picture')]/a[@target='_blank']
 
         // 2 тип
-        // основа - <article class="_2vCnw cia-vs cia-cs" data-autotest-id="product-snippet" data-auto="product-snippet" data-visual-search-onbording-target="list" data-tid="ad2e1ec 6424abc6 ff550789 cb374e64 a4329bfa" data-tid-prop="ad2e1ec 6424abc6 ff550789 cb374e64 a4329bfa" data-zone-data="{}" data-zone-name="snippet-card" data-baobab-name="$result" data-node-cache-key="product-snippet-card-16692143359482179837016002-1" data-calc-coords="true" data-node-id="8hre1m">
+        // основа - <article data-autotest-id="product-snippet" data-auto="product-snippet" data-visual-search-onbording-target="list" data-zone-name="snippet-card" data-baobab-name="$result" data-node-cache-key="product-snippet-card-16692143359482179837016002-1" data-calc-coords="true">
         // проверка - .//div/div/a[@data-baobab-name='rating']
         // имя - .//div/h3/a/span
         // линк - .//div/div/a[@data-baobab-name='rating']
 
         // 3 тип
         // основа - 
-        // проверка -
+        // проверка - 
         // имя - 
-        // линк -
+        // линк - 
 
         protected private static Stuff GetProductsV3(ChromeDriver chromeDriver)
         {
@@ -97,13 +98,38 @@ namespace ConsoleParser.Parse
             var nameList = new List<string>();
             var linkList = new List<string>();
 
+            var xPath = Array.Empty<string>();
+
+            for (int i = 0; i < stuff.Count; i++)
+            {
+                if (stuff[i].FindElements(By.XPath(".//a[@data-zone-name='rating']")).Count > 0)
+                {
+                    xPath = new string[3] { ".//div/div/a[@data-baobab-name='rating']", ".//div/h3/a/span", ".//div/div/a[@data-baobab-name='rating']"};
+                    break;
+                }
+                else if (stuff[i].FindElements(By.XPath(".//div/div[not(@data-tid)]/div[not(@data-zone-name='picture')]/a[@target='_blank']")).Count > 0)
+                {
+                    xPath = new string[3] { ".//div/div[not(@data-tid)]/div[not(@data-zone-name='picture')]/a[@target='_blank']", ".//div/h3/a/span", ".//div/div[not(@data-tid)]/div[not(@data-zone-name='picture')]/a[@target='_blank']" };
+                    break;
+                }
+
+            }
+
+            if (xPath.Length == 0)
+            {
+                Logger.LogNewLine("│├Не удалось что-либо найти...");
+                return new Stuff();
+            }
+
+            Thread.Sleep(1000);
+
             Logger.LogNewLine("│├Сбор информации товара...");
             for (int i = 0; i < stuff.Count; i++)
             {
                 Logger.LogOnLine($"│├Собрано {i + 1} из {stuff.Count}...");
                 try
                 {
-                    if (stuff[i].FindElements(By.XPath(".//a[@data-zone-name='rating']")).Count == 0) // ".//div[@role='img']"
+                    if (stuff[i].FindElements(By.XPath(xPath[0])).Count == 0) // ".//div[@role='img']"
                         continue;
                 }
                 catch (Exception ex)
@@ -111,8 +137,8 @@ namespace ConsoleParser.Parse
                     Logger.LogNewLine("│├Неудалось найти нужный див(возможно страница не успела загрузиться)...", LogEnum.Error);
                 }
 
-                nameList.Add(ToArray(stuff[i].FindElements(By.XPath(".//div/h3/a/span"))));
-                linkList.Add(OtherStuff.ClearGarbage(stuff[i].FindElement(By.XPath(".//div/div/a[@data-baobab-name='rating']")).GetAttribute("href"), '?')); // .//div/div/div[not(@data-zone-name='picture')]/a[@target='_blank']
+                nameList.Add(ToArray(stuff[i].FindElements(By.XPath(xPath[1]))));
+                linkList.Add(OtherStuff.ClearGarbage(stuff[i].FindElement(By.XPath(xPath[2])).GetAttribute("href"), '?')); // .//div/div/div[not(@data-zone-name='picture')]/a[@target='_blank']
             }
 
             return new Stuff(nameList, linkList);

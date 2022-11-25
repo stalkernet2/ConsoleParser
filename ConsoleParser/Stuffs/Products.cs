@@ -76,7 +76,7 @@ namespace ConsoleParser.Stuffs
                     Logger.LogOnLine($"Для {links[i]} отсутствует производитель!({ex})", LogEnum.Error);
                 }
 
-                manufacture = Regex.Replace(manufacture, @"\s+", "");
+                manufacture = manufacture.Trim('\n').Trim('\t');
 
                 if (string.IsNullOrEmpty(manufacture))
                     manufacturers.Add(manufacture);
