@@ -83,12 +83,6 @@ namespace ConsoleParser.Parse
         // имя - .//div/h3/a/span
         // линк - .//div/div/a[@data-baobab-name='rating']
 
-        // 3 тип
-        // основа - 
-        // проверка - 
-        // имя - 
-        // линк - 
-
         protected private static Stuff GetProductsV3(ChromeDriver chromeDriver)
         {
             Logger.LogNewLine("│├Получение карточек товаров...");
@@ -129,7 +123,7 @@ namespace ConsoleParser.Parse
                 Logger.LogOnLine($"│├Собрано {i + 1} из {stuff.Count}...");
                 try
                 {
-                    if (stuff[i].FindElements(By.XPath(xPath[0])).Count == 0) // ".//div[@role='img']"
+                    if (stuff[i].FindElements(By.XPath(xPath[0])).Count == 0)
                         continue;
                 }
                 catch (Exception ex)
@@ -138,7 +132,7 @@ namespace ConsoleParser.Parse
                 }
 
                 nameList.Add(ToArray(stuff[i].FindElements(By.XPath(xPath[1]))));
-                linkList.Add(OtherStuff.ClearGarbage(stuff[i].FindElement(By.XPath(xPath[2])).GetAttribute("href"), '?')); // .//div/div/div[not(@data-zone-name='picture')]/a[@target='_blank']
+                linkList.Add(OtherStuff.ClearGarbage(stuff[i].FindElement(By.XPath(xPath[2])).GetAttribute("href"), '?'));
             }
 
             return new Stuff(nameList, linkList);

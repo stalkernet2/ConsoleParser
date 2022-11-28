@@ -1,4 +1,5 @@
 ﻿using ConsoleParser.Stuffs;
+using OpenQA.Selenium.DevTools.V105.Debugger;
 using System.Linq;
 
 namespace ConsoleParser.Parse.Filters
@@ -75,12 +76,18 @@ namespace ConsoleParser.Parse.Filters
                     validNum = splitedCondition[i];
                     break;
                 }
+
+                if (validNum != "")
+                    break;
             }
+
+            if (validNum == "")
+                return product;
 
             for (int i = 0; i < product.Names.Count; i++)
             {
                 
-                if (product.Names.Contains(validNum))
+                if (product.Names[i].Contains(validNum))
                 {
                     stuff.Names.Add(product.Names[i]);
                     stuff.Links.Add(product.Links[i]);
