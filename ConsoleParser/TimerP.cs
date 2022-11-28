@@ -30,7 +30,7 @@ namespace ConsoleParser
         {
             var timeNow = DateTime.Now;
             var timeNowSpan = new TimeSpan(timeNow.Hour, timeNow.Minute, timeNow.Second);
-            if (_triggerTimeToStart.Hours <= timeNowSpan.Hours && _triggerTimeToStart.Minutes <= timeNowSpan.Minutes && _triggerTimeToStart.Seconds <= timeNowSpan.Seconds)
+            if (_triggerTimeToStart.Hours == timeNowSpan.Hours && _triggerTimeToStart.Minutes == timeNowSpan.Minutes && _triggerTimeToStart.Seconds == timeNowSpan.Seconds)
             {
                 _timer.Dispose();
                 Logger.LogNewLine("Запуск парсера");
@@ -45,7 +45,7 @@ namespace ConsoleParser
         {
             var timeNow = DateTime.Now;
             var timeNowSpan = new TimeSpan(timeNow.Hour, timeNow.Minute, timeNow.Second);
-            if (_triggerTimeToStop.Hours <= timeNowSpan.Hours && _triggerTimeToStop.Minutes <= timeNowSpan.Minutes && _triggerTimeToStop.Seconds <= timeNowSpan.Seconds)
+            if (_triggerTimeToStop.Hours == timeNowSpan.Hours && _triggerTimeToStop.Minutes == timeNowSpan.Minutes && _triggerTimeToStop.Seconds == timeNowSpan.Seconds)
             {
                 _timer.Dispose();
                 Console.WriteLine("Этого текста не должно быть видно");
