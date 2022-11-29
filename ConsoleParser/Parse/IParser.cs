@@ -87,6 +87,13 @@ namespace ConsoleParser.Parse
         {
             Logger.LogNewLine("│├Получение карточек товаров...");
             var stuff = chromeDriver.FindElements(By.XPath(".//article[@data-calc-coords='true']")); // основа
+
+            if (stuff.Count == 0)
+            {
+                Logger.LogNewLine("│├Не удалось что-либо найти");
+                return new Stuff();
+            }
+
             Logger.LogNewLine($"│├Получено {stuff.Count}");
 
             var nameList = new List<string>();
@@ -96,22 +103,28 @@ namespace ConsoleParser.Parse
 
             for (int i = 0; i < stuff.Count; i++)
             {
-                if (stuff[i].FindElements(By.XPath(".//a[@data-zone-name='rating']")).Count > 0)
+                try
                 {
-                    xPath = new string[3] { ".//div/div/a[@data-baobab-name='rating']", ".//div/h3/a/span", ".//div/div/a[@data-baobab-name='rating']"};
-                    break;
+                    if (stuff[i].FindElements(By.XPath(".//a[@data-zone-name='rating']")).Count > 0)
+                    {
+                        xPath = new string[3] { ".//div/div/a[@data-baobab-name='rating']", ".//div/h3/a/span", ".//div/div/a[@data-baobab-name='rating']" };
+                        break;
+                    }
+                    else if (stuff[i].FindElements(By.XPath(".//div/div[not(@data-tid)]/div[not(@data-zone-name='picture')]/a[@target='_blank']")).Count > 0)
+                    {
+                        xPath = new string[3] { ".//div/div[not(@data-tid)]/div[not(@data-zone-name='picture')]/a[@target='_blank']", ".//div/h3/a/span", ".//div/div[not(@data-tid)]/div[not(@data-zone-name='picture')]/a[@target='_blank']" };
+                        break;
+                    }
                 }
-                else if (stuff[i].FindElements(By.XPath(".//div/div[not(@data-tid)]/div[not(@data-zone-name='picture')]/a[@target='_blank']")).Count > 0)
+                catch
                 {
-                    xPath = new string[3] { ".//div/div[not(@data-tid)]/div[not(@data-zone-name='picture')]/a[@target='_blank']", ".//div/h3/a/span", ".//div/div[not(@data-tid)]/div[not(@data-zone-name='picture')]/a[@target='_blank']" };
-                    break;
+                    Logger.LogNewLine("│├Не удалось найти дивы");
                 }
-
             }
 
             if (xPath.Length == 0)
             {
-                Logger.LogNewLine("│├Не удалось что-либо найти...");
+                Logger.LogNewLine("│├Не удалось что-либо найти");
                 return new Stuff();
             }
 

@@ -40,7 +40,6 @@ namespace ConsoleParser.Parse.Filters
             var manufacturer = manufacture.Split(' ');
 
             Logger.LogNewLine("│├Фильтрация по наличию производителя в наименовании...");
-            Console.WriteLine();
 
             for (int i = 0; i < product.Links.Count; i++)
             {
