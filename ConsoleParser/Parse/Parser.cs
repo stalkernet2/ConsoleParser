@@ -41,9 +41,11 @@ namespace ConsoleParser.Parse
 
                 GC.Collect();
 
-                for (int otidoProductIndex = 0; otidoProductIndex < product.Articules.Count; otidoProductIndex++)
+                for (int otidoProductIndex = 0; otidoProductIndex < product.Names.Count; otidoProductIndex++)
                 {
-                    Logger.LogNewLine($"Получение отзывов для \"{product.Names[otidoProductIndex]}\" ({otidoProductIndex + 1} из {product.Articules.Count})...");
+                    Console.Title = $"{Program.Name} ({otidoProductIndex + 1} из {product.Names.Count})";
+
+                    Logger.LogNewLine($"Получение отзывов для \"{product.Names[otidoProductIndex]}\" ({otidoProductIndex + 1} из {product.Names.Count})...");
 
                     var otidoHref = product.Links[otidoProductIndex];
                     var ozonList = new List<string>();
@@ -118,23 +120,5 @@ namespace ConsoleParser.Parse
             Logger.LogNewLine($"Парсер успешно прошелся с {parameters.StartPage} по {parameters.EndPage} страницу!");
             return Task.CompletedTask;
         }
-
-        //private static List<string> Harvester(IParser harvester, string searchString, string addSearchString, string[] xPaths, string manufacturer = "")
-        //{
-        //    var strings = new List<string>() { "" };
-        //    var strings.AddRange(harvester.GetValidURL(searchCondition: addSearchString,
-        //                                               manufacture: manufacturer,
-        //                                               searchURL: "https://www.ozon.ru/search/?text=",
-        //                                               XPaths: xPaths,
-        //                                               noFound: out bool didntFoundByName));
-
-        //    strings.AddRange(harvester.GetValidURL(searchCondition: searchString,
-        //                                    manufacture: manufacturer,
-        //                                    searchURL: "https://www.ozon.ru/search/?text=",
-        //                                    XPaths: xPaths,
-        //                                    noFound: out _, // интересная ситуация
-        //                                    usingName: true));
-        //    return strings;
-        //}
     }
 }

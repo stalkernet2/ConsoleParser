@@ -14,46 +14,33 @@ namespace ConsoleParser.Stuffs
     {
         public List<string> Names { get; set; }
         public List<string> Links { get; set; }
-        public List<string> Articules { get; set; }
         public List<string> Manufacturers { get; set; }
 
 
-        public Products(ReadOnlyCollection<IWebElement> collection)
+        public Products(ReadOnlyCollection<IWebElement> productCardsCollection)
         {
-            Sorting(collection);
+            Sorting(productCardsCollection);
         }
 
-        private void Sorting(ReadOnlyCollection<IWebElement> collection)
+        private void Sorting(ReadOnlyCollection<IWebElement> productCardsCollection)
         {
             List<string> names = new();
             List<string> links = new();
-            List<string> articules = new();
 
-            for (int i = 0; i < collection.Count; i++)
+            for (int i = 0; i < productCardsCollection.Count; i++)
             {
-                Logger.LogOnLine($"Парсинг карточки товара, {i} из {collection.Count}");
-                names.Add(collection[i].FindElement(By.XPath(".//div/div/div/a/span")).Text);
+                if (productCardsCollection[i].FindElement(By.XPath(".//div[@class='line-block__item rating__value']")).Text.Trim() != "0") // Проверка на наличие отзывов 
+                    continue;
 
-                var tempValue = collection[i].FindElement(By.XPath(".//div/div/div/a"));
+                Logger.LogOnLine($"Парсинг карточки товара, {i} из {productCardsCollection.Count}");
+                names.Add(productCardsCollection[i].FindElement(By.XPath(".//div/div/div/a/span")).Text);
+
+                var tempValue = productCardsCollection[i].FindElement(By.XPath(".//div/div/div/a"));
                 links.Add(tempValue.GetAttribute("href"));
-
-                IWebElement? webElement;
-                try
-                {
-                    webElement = collection[i].FindElement(By.XPath(".//span[@class='js-replace-article']"));
-                }
-                catch
-                {
-                    Logger.LogNewLine($"{collection[i].FindElement(By.XPath(".//div/div/div/a/span")).Text} неимеет артикула", LogEnum.Warning);
-                    webElement = null;
-                }
-
-                articules.Add(webElement is null ? "" : webElement.Text);
             }
 
             Names = names;
             Links = links;
-            Articules = articules;
         }
 
         public static List<string> GetManufacture(List<string> links)

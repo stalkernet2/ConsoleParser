@@ -105,7 +105,7 @@ namespace ConsoleParser.Parse
             {
                 try
                 {
-                    if (stuff[i].FindElements(By.XPath(".//a[@data-zone-name='rating']")).Count > 0)
+                    if (stuff[i].FindElements(By.XPath(".//div/div/a[@data-baobab-name='rating']")).Count > 0)
                     {
                         xPath = new string[3] { ".//div/div/a[@data-baobab-name='rating']", ".//div/h3/a/span", ".//div/div/a[@data-baobab-name='rating']" };
                         break;

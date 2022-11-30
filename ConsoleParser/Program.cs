@@ -5,6 +5,8 @@ namespace ConsoleParser
 {
     public class Program
     {
+        public static string Name = "ConsoleParser";
+
         static void Main(string[] args)
         {
             //DebugMoment();
