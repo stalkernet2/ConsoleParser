@@ -8,10 +8,12 @@ namespace ConsoleParser.Parse.EnumerableParser.SConfig
 {
     public struct SearchConfig
     {
-        public static string Name;
-        public static string TargetURL { get; set; }
-        public static int Type { get; set; }
-        public static string[] XPath { get; set; }
-        public static bool SearchWithRating { get; set; }
+        public string Name;
+        public string TargetURL { get; set; }
+        public SConfigType Type { get; set; }
+        public string[] XPath { get; set; }
+        public bool SearchWithRating { get; set; }
+        public string Rules { get; set; }
+        public int ValidValue { get; set; }
     }
 }

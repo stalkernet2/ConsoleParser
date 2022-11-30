@@ -1,4 +1,5 @@
-﻿using ConsoleParser.Stuffs;
+﻿using ConsoleParser.Parse.EnumerableParser.SConfig;
+using ConsoleParser.Stuffs;
 using OpenQA.Selenium.DevTools.V105.Debugger;
 using System.Linq;
 
@@ -95,6 +96,27 @@ namespace ConsoleParser.Parse.Filters
             }
 
             return stuff;
+        }
+
+        public static List<string> ByRules(Stuff stuff, SearchConfig config, string searchCondition, string manufacture)
+        {
+            for (int i = 0; i < config.Rules.Length; i++)
+            {
+                switch (config.Rules[i])
+                {
+                    case '1':
+                        stuff = ByManufacturers(stuff, manufacture);
+                        break;
+                    case '2':
+                        stuff = ByTriggerNum(stuff, searchCondition);
+                        break;
+                    case '3':
+                        return ByAccurasyLevel(stuff, searchCondition);
+                    default:
+                        break;
+                }
+            }
+            return null;
         }
     }
 }
