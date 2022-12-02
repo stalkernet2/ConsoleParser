@@ -24,8 +24,8 @@ namespace ConsoleParser.Parse.EnumerableParser
 
             var lists = new List<string>[_searchConfigs.Count()];
 
-            for (int i = 0; i < lists.Length; i++)
-                lists[i].Add(GetValidURL(searchCondition, _searchConfigs.ElementAt(i)));
+            //for (int i = 0; i < lists.Length; i++)
+            //    lists[i].Add(GetValidURL(searchCondition, _searchConfigs.ElementAt(i)));
 
             int maxLength = 0;
             for (int i = 0; i < lists.Length; i++)

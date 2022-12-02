@@ -118,7 +118,11 @@ namespace ConsoleParser.Parse
                 }
                 catch
                 {
-                    Logger.LogNewLine("│├Не удалось найти дивы");
+                    if (stuff[i].FindElements(By.XPath(".//div/div[not(@data-tid)]/div[not(@data-zone-name='picture')]/a[@target='_blank']")).Count > 0)
+                    {
+                        xPath = new string[3] { ".//div/div[not(@data-tid)]/div[not(@data-zone-name='picture')]/a[@target='_blank']", ".//div/h3/a/span", ".//div/div[not(@data-tid)]/div[not(@data-zone-name='picture')]/a[@target='_blank']" };
+                        break;
+                    }
                 }
             }
 
@@ -142,6 +146,7 @@ namespace ConsoleParser.Parse
                 catch (Exception ex)
                 {
                     Logger.LogNewLine("│├Неудалось найти нужный див(возможно страница не успела загрузиться)...", LogEnum.Error);
+                    continue;
                 }
 
                 nameList.Add(ToArray(stuff[i].FindElements(By.XPath(xPath[1]))));

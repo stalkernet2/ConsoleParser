@@ -12,18 +12,18 @@ namespace ConsoleParser.Parse.EnumerableParser
 {
     public class Engine
     {
-        public static List<string> Choose(string searchCondition, SearchConfig config)
-        {
-            switch (config.Type)
-            {
-                case SConfigType.V1:
-                    return GetProductsV2(searchCondition, config);
-                case SConfigType.V2:
-                    return GetProductsV2(searchCondition, config);
-                default:
-                    return new Stuff();
-            }
-        }
+        //public static List<string> Choose(string searchCondition, SearchConfig config)
+        //{
+        //    switch (config.Type)
+        //    {
+        //        case SConfigType.V1:
+        //            return GetProductsV2(searchCondition, config);
+        //        case SConfigType.V2:
+        //            return GetProductsV2(searchCondition, config);
+        //        default:
+        //            return new Stuff();
+        //    }
+        //}
 
         private static Stuff GetProductsV2(string searchCondition, SearchConfig config, int validValue = 1)
         {
