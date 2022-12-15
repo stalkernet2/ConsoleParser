@@ -54,6 +54,7 @@ namespace ConsoleParser.Parse
                 if(validTest >= validValue)
                 {
                     nameList.Add(stuff[i].FindElement(By.XPath(XPaths[2])).Text);
+                    Thread.Sleep(10);
                     linkList.Add(stuff[i].FindElement(By.XPath(XPaths[3])).GetAttribute("href"));
                 }
             }

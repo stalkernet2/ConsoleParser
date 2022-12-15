@@ -80,7 +80,7 @@ namespace ConsoleParser.Parse
                                                             XPaths: new string[4] { ".//div[@data-qa='products-tile-horizontal']",
                                                                                     ".//span[@class='typography text v5 -no-margin']",
                                                                                     ".//span[@class='typography text v4 ']",
-                                                                                    ".//div[@data-qa='products-tile-horizontal']/div/a[@data-qa='product-name']"});
+                                                                                    ".//a[@data-qa='product-name']"});
                         Logger.LogNewLine("└─Конец сбора со ВсехИнструментов");
                     }
 
