@@ -14,7 +14,7 @@ namespace ConsoleParser
             Logger.Init();
             Logger.LogNewLine("Инициализация логгера успешна!");
 
-            Logger.LogNewLine("Версия .Net: " + RuntimeInformation.FrameworkDescription);
+            Logger.LogNewLine("Версия платформы: " + RuntimeInformation.FrameworkDescription);
             Logger.LogNewLine("Версия приложения: " + typeof(Program).Assembly.GetName().Version);
 
             var parameters = new Parameters("config/presets.json");

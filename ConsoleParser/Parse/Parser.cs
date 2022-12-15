@@ -77,10 +77,10 @@ namespace ConsoleParser.Parse
                         vseinstrList = searcher.GetValidURL(searchCondition: product.Names[otidoProductIndex],
                                                             manufacture: product.Manufacturers[otidoProductIndex],
                                                             searchURL: "https://chelyabinsk.vseinstrumenti.ru/search_main.php?what=",
-                                                            XPaths: new string[4] { ".//div[@class='product-tile grid-item']",
-                                                                                    ".//div[@class='rating-count']",
-                                                                                    ".//div[@class='title']/a[@class='link']",
-                                                                                    ".//a[@data-behavior='product-image']"});
+                                                            XPaths: new string[4] { ".//div[@data-qa='products-tile-horizontal']",
+                                                                                    ".//span[@class='typography text v5 -no-margin']",
+                                                                                    ".//span[@class='typography text v4 ']",
+                                                                                    ".//div[@data-qa='products-tile-horizontal']/div/a[@data-qa='product-name']"});
                         Logger.LogNewLine("└─Конец сбора со ВсехИнструментов");
                     }
 
