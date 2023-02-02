@@ -16,8 +16,18 @@ namespace ConsoleParser.Parse
             {
                 SpreadsheetId = parameters.SpreadsheetId,
             };
-
-            var mainDriver = new ChromeDriver();
+            ChromeDriver mainDriver;
+            try
+            {
+                mainDriver = new ChromeDriver();
+            }
+            catch(Exception e)
+            {
+                if (e.Message.Contains("version"))
+                    Logger.LogNewLine($"Версия chromeDriver({e.Message.Split(' ')[11].Remove(3)}) не предназначена для версии браузера({e.Message.Split(' ')[15]})", LogEnum.Error);
+                Logger.LogNewLine($"Выполнение парсинга прервано!", LogEnum.Error);
+                return Task.CompletedTask;
+            }
 
             YandexDriver? yandexDriver = null;
             if (parameters.Yandex)
