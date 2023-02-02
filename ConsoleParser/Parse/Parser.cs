@@ -17,23 +17,22 @@ namespace ConsoleParser.Parse
                 SpreadsheetId = parameters.SpreadsheetId,
             };
 
+            var mainDriver = new ChromeDriver();
+
             YandexDriver? yandexDriver = null;
             if (parameters.Yandex)
                 yandexDriver = new YandexDriver(parameters.CaptchaKey);
 
-            var otidoDriver = new ChromeDriver();
-
             for (int pageNum = parameters.StartPage; pageNum <= parameters.EndPage; pageNum++)
             {
-                // Начало работы драйвера "ОТИДО"
                 Logger.LogNewLine($"Переход на {parameters.URL}?PAGEN_1={pageNum}...");
-                otidoDriver.Navigate().GoToUrl(parameters.URL + "?PAGEN_1=" + pageNum);
+                mainDriver.Navigate().GoToUrl(parameters.URL + "?PAGEN_1=" + pageNum);
 
                 Logger.LogNewLine("Ожидание в одну секунду...");
                 Thread.Sleep(1000);
 
                 Logger.LogNewLine("Сбор товаров для парсинга...");
-                var product = new Products(otidoDriver.FindElements(By.XPath(".//div[@class='catalog-block']//div[@itemprop='itemListElement']")));
+                var product = new Products(mainDriver.FindElements(By.XPath(".//div[@class='catalog-block']//div[@itemprop='itemListElement']")));
 
                 if (product.Names.Count == 0)
                     continue;
@@ -42,14 +41,16 @@ namespace ConsoleParser.Parse
 
                 GC.Collect();
 
-                for (int otidoProductIndex = 0; otidoProductIndex < product.Articules.Count; otidoProductIndex++)
+                for (int otidoProductIndex = 0; otidoProductIndex < product.Names.Count; otidoProductIndex++)
                 {
-                    Logger.LogNewLine($"Получение отзывов для \"{product.Names[otidoProductIndex]}\" ({otidoProductIndex + 1} из {product.Articules.Count})...");
+                    Console.Title = $"{Program.Name} ({otidoProductIndex + 1} из {product.Names.Count})";
+
+                    Logger.LogNewLine($"Получение отзывов для \"{product.Names[otidoProductIndex]}\" ({otidoProductIndex + 1} из {product.Names.Count})...");
 
                     var otidoHref = product.Links[otidoProductIndex];
-                    var ozonList = new List<string>();
-                    var vseinstrList = new List<string>();
-                    var yandexList = new List<string>();
+                    Task<List<string>>? ozonTask = null;
+                    Task<List<string>>? vseinstrTask = null;
+                    Task<List<string>>? yandexTask = null;
 
                     //Начало работы драйвера "ОЗОН"
 
@@ -57,14 +58,13 @@ namespace ConsoleParser.Parse
                     {
                         Logger.LogNewLine($"┌─С Озона...");
                         searcher = new Ozon();
-                        ozonList = searcher.GetValidURL(searchCondition: product.Names[otidoProductIndex],
+                        ozonTask = Task.Factory.StartNew(() => searcher.GetValidURL(searchCondition: product.Names[otidoProductIndex],
                                                         searchURL: "https://www.ozon.ru/search/?text=",
                                                         XPaths: new string[4] { $".//div[@class='{parameters.DivClass}']",
                                                                                 $".//span[@class='{parameters.AClass}']",
                                                                                 $".//div/a/span/span",
                                                                                 $".//a[@data-prerender='true']"},
-                                                        noFound: out _,
-                                                        usingName: true);
+                                                        usingName: true));
                         Logger.LogNewLine("└─Конец сбора с Озона");
                     }
 
@@ -74,23 +74,26 @@ namespace ConsoleParser.Parse
                     {
                         Logger.LogNewLine($"┌─С ВсеИнструментов...");
                         searcher = new VseInstrumenty();
-                        vseinstrList = searcher.GetValidURL(searchCondition: product.Names[otidoProductIndex],
+                        vseinstrTask = Task.Factory.StartNew(() => searcher.GetValidURL(searchCondition: product.Names[otidoProductIndex],
                                                             manufacture: product.Manufacturers[otidoProductIndex],
                                                             searchURL: "https://chelyabinsk.vseinstrumenti.ru/search_main.php?what=",
-                                                            XPaths: new string[4] { ".//div[@class='product-tile grid-item']",
-                                                                                    ".//div[@class='rating-count']",
-                                                                                    ".//div[@class='title']/a[@class='link']",
-                                                                                    ".//a[@data-behavior='product-image']"},
-                                                            noFound: out bool _);
+                                                            XPaths: new string[4] { ".//div[@data-qa='products-tile-horizontal']",
+                                                                                    ".//span[@class='typography text v5 -no-margin']",
+                                                                                    ".//span[@class='typography text v4 ']",
+                                                                                    ".//a[@data-qa='product-name']"}));
                         Logger.LogNewLine("└─Конец сбора со ВсехИнструментов");
                     }
 
                     if (parameters.Yandex && yandexDriver is not null)
                     {
                         Logger.LogNewLine($"┌─С Я.Маркета...");
-                        yandexList = yandexDriver.GetValidURL(product.Names[otidoProductIndex], "", Array.Empty<string>(), out _);
+                        yandexTask = Task.Factory.StartNew(() => yandexDriver.GetValidURL(product.Names[otidoProductIndex], "https://market.yandex.ru/", Array.Empty<string>(), product.Manufacturers[otidoProductIndex]));
                         Logger.LogNewLine("└─Конец сбора с Я.Маркета");
                     }
+
+                    var ozonList = ozonTask != null ? ozonTask.Result : new List<string>();
+                    var vseinstrList = vseinstrTask != null ? vseinstrTask.Result : new List<string>();
+                    var yandexList = yandexTask != null ? yandexTask.Result : new List<string>();
 
                     if (ozonList.Count <= 0 && vseinstrList.Count <= 0 && yandexList.Count <= 0)
                         continue;
@@ -115,29 +118,11 @@ namespace ConsoleParser.Parse
                     GC.Collect();
                 }
             }
-            otidoDriver.Close();
-            otidoDriver.Dispose();
+            mainDriver.Close();
+            mainDriver.Dispose();
 
             Logger.LogNewLine($"Парсер успешно прошелся с {parameters.StartPage} по {parameters.EndPage} страницу!");
             return Task.CompletedTask;
         }
-
-        //private static List<string> Harvester(IParser harvester, string searchString, string addSearchString, string[] xPaths, string manufacturer = "")
-        //{
-        //    var strings = new List<string>() { "" };
-        //    var strings.AddRange(harvester.GetValidURL(searchCondition: addSearchString,
-        //                                               manufacture: manufacturer,
-        //                                               searchURL: "https://www.ozon.ru/search/?text=",
-        //                                               XPaths: xPaths,
-        //                                               noFound: out bool didntFoundByName));
-
-        //    strings.AddRange(harvester.GetValidURL(searchCondition: searchString,
-        //                                    manufacture: manufacturer,
-        //                                    searchURL: "https://www.ozon.ru/search/?text=",
-        //                                    XPaths: xPaths,
-        //                                    noFound: out _, // интересная ситуация
-        //                                    usingName: true));
-        //    return strings;
-        //}
     }
 }

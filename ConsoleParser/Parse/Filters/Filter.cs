@@ -1,4 +1,7 @@
-﻿using ConsoleParser.Stuffs;
+﻿using ConsoleParser.Parse.EnumerableParser.SConfig;
+using ConsoleParser.Stuffs;
+using OpenQA.Selenium.DevTools.V105.Debugger;
+using System.Linq;
 
 namespace ConsoleParser.Parse.Filters
 {
@@ -35,12 +38,13 @@ namespace ConsoleParser.Parse.Filters
             var names = new List<string>();
             var links = new List<string>();
 
+            var manufacturer = manufacture.Split(' ');
+
             Logger.LogNewLine("│├Фильтрация по наличию производителя в наименовании...");
-            Console.WriteLine();
 
             for (int i = 0; i < product.Links.Count; i++)
             {
-                if (product.Names[i].ToLower().Contains(manufacture))
+                if (product.Names[i].ToLower().Contains(manufacturer[0]))
                 {
                     names.Add(product.Names[i]);
                     links.Add(product.Links[i]);
@@ -58,21 +62,32 @@ namespace ConsoleParser.Parse.Filters
                 return new Stuff();
 
             var stuff = new Stuff();
+            var validNum = "";
 
-            for (int i = 0; i < product.Names.Count; i++)
+            var splitedCondition = searchCondition.Split(' ');
+
+            for (int i = 0; i < splitedCondition.Length; i++)
             {
-                var splitedText = product.Names[i].Split(' ');
-                var validNum = "";
-                for (int j = 0; j < splitedText.Length; j++)
+                for (int h = 0; h < splitedCondition[i].Length; h++)
                 {
-                    if (!char.IsDigit(splitedText[j][0]))
+                    if (!char.IsDigit(splitedCondition[i][h]))
                         continue;
 
-                    validNum = splitedText[j];
+                    validNum = splitedCondition[i];
                     break;
                 }
 
-                if (searchCondition.Contains(validNum))
+                if (validNum != "")
+                    break;
+            }
+
+            if (validNum == "")
+                return product;
+
+            for (int i = 0; i < product.Names.Count; i++)
+            {
+                
+                if (product.Names[i].Contains(validNum))
                 {
                     stuff.Names.Add(product.Names[i]);
                     stuff.Links.Add(product.Links[i]);
@@ -81,6 +96,27 @@ namespace ConsoleParser.Parse.Filters
             }
 
             return stuff;
+        }
+
+        public static List<string> ByRules(Stuff stuff, SearchConfig config, string searchCondition, string manufacture)
+        {
+            for (int i = 0; i < config.Rules.Length; i++)
+            {
+                switch (config.Rules[i])
+                {
+                    case '1':
+                        stuff = ByManufacturers(stuff, manufacture);
+                        break;
+                    case '2':
+                        stuff = ByTriggerNum(stuff, searchCondition);
+                        break;
+                    case '3':
+                        return ByAccurasyLevel(stuff, searchCondition);
+                    default:
+                        break;
+                }
+            }
+            return new List<string>();
         }
     }
 }

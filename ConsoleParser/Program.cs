@@ -5,6 +5,8 @@ namespace ConsoleParser
 {
     public class Program
     {
+        public static string Name = "ConsoleParser";
+
         static void Main(string[] args)
         {
             //DebugMoment();
@@ -12,7 +14,7 @@ namespace ConsoleParser
             Logger.Init();
             Logger.LogNewLine("Инициализация логгера успешна!");
 
-            Logger.LogNewLine("Версия .Net: " + RuntimeInformation.FrameworkDescription);
+            Logger.LogNewLine("Версия платформы: " + RuntimeInformation.FrameworkDescription);
             Logger.LogNewLine("Версия приложения: " + typeof(Program).Assembly.GetName().Version);
 
             var parameters = new Parameters("config/presets.json");
@@ -112,7 +114,7 @@ namespace ConsoleParser
         private static void DebugMoment()
         {
             var ya = new YandexDriver("");
-            var we = ya.GetValidURL("asd", "", Array.Empty<string>(), out bool _);
+            var we = ya.GetValidURL("asd", "", Array.Empty<string>());
             Console.ReadKey();
         }
     }

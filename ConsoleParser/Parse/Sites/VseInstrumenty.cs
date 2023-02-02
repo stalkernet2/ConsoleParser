@@ -4,9 +4,9 @@ namespace ConsoleParser.Parse
 {
     public class VseInstrumenty : IParser
     {
-        public List<string> GetValidURL(string searchCondition, string searchURL, string[] XPaths, out bool noFound, string manufacture = "", bool usingName = false)
+        public List<string> GetValidURL(string searchCondition, string searchURL, string[] XPaths, string manufacture = "", bool usingName = false)
         {
-            var product = IParser.GetProductsV2(searchCondition, searchURL, XPaths, out noFound);
+            var product = IParser.GetProductsV2(searchCondition, searchURL, XPaths);
 
             var result = Filter.ByAccurasyLevel(Filter.ByManufacturers(product, manufacture), searchCondition);
 
