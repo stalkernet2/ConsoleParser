@@ -116,7 +116,7 @@ namespace ConsoleParser.Parse.Filters
                         break;
                 }
             }
-            return null;
+            return new List<string>();
         }
     }
 }

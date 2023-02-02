@@ -151,7 +151,7 @@ namespace ConsoleParser.Parse
                     if (stuff[i].FindElements(By.XPath(xPath[0])).Count == 0)
                         continue;
                 }
-                catch (Exception ex)
+                catch
                 {
                     Logger.LogNewLine("│├Неудалось найти нужный див(возможно страница не успела загрузиться)...", LogEnum.Error);
                     continue;

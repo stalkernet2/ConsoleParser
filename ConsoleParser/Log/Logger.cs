@@ -38,7 +38,7 @@ namespace ConsoleParser
 
         public static void LogNewLine(string text, LogEnum @enum = LogEnum.Info)
         {
-            WriteTextInLogFile($"[{DateTime.Now:dd.MM.yyyy || HH:mm:ss.ffffff}]: {@enum} " + text.Replace('│', '|').Replace('├', '|').Replace('└', '\\').Replace('┌', '/').Replace('─', '-')); // da
+            //WriteTextInLogFile($"[{DateTime.Now:dd.MM.yyyy || HH:mm:ss.ffffff}]: {@enum} " + text.Replace('│', '|').Replace('├', '|').Replace('└', '\\').Replace('┌', '/').Replace('─', '-')); // da
 
             switch (@enum)
             {

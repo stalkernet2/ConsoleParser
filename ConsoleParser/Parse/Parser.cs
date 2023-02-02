@@ -48,9 +48,9 @@ namespace ConsoleParser.Parse
                     Logger.LogNewLine($"Получение отзывов для \"{product.Names[otidoProductIndex]}\" ({otidoProductIndex + 1} из {product.Names.Count})...");
 
                     var otidoHref = product.Links[otidoProductIndex];
-                    var ozonList = new List<string>();
-                    var vseinstrList = new List<string>();
-                    var yandexList = new List<string>();
+                    Task<List<string>>? ozonTask = null;
+                    Task<List<string>>? vseinstrTask = null;
+                    Task<List<string>>? yandexTask = null;
 
                     //Начало работы драйвера "ОЗОН"
 
@@ -58,13 +58,13 @@ namespace ConsoleParser.Parse
                     {
                         Logger.LogNewLine($"┌─С Озона...");
                         searcher = new Ozon();
-                        ozonList = searcher.GetValidURL(searchCondition: product.Names[otidoProductIndex],
+                        ozonTask = Task.Factory.StartNew(() => searcher.GetValidURL(searchCondition: product.Names[otidoProductIndex],
                                                         searchURL: "https://www.ozon.ru/search/?text=",
                                                         XPaths: new string[4] { $".//div[@class='{parameters.DivClass}']",
                                                                                 $".//span[@class='{parameters.AClass}']",
                                                                                 $".//div/a/span/span",
                                                                                 $".//a[@data-prerender='true']"},
-                                                        usingName: true);
+                                                        usingName: true));
                         Logger.LogNewLine("└─Конец сбора с Озона");
                     }
 
@@ -74,22 +74,26 @@ namespace ConsoleParser.Parse
                     {
                         Logger.LogNewLine($"┌─С ВсеИнструментов...");
                         searcher = new VseInstrumenty();
-                        vseinstrList = searcher.GetValidURL(searchCondition: product.Names[otidoProductIndex],
+                        vseinstrTask = Task.Factory.StartNew(() => searcher.GetValidURL(searchCondition: product.Names[otidoProductIndex],
                                                             manufacture: product.Manufacturers[otidoProductIndex],
                                                             searchURL: "https://chelyabinsk.vseinstrumenti.ru/search_main.php?what=",
                                                             XPaths: new string[4] { ".//div[@data-qa='products-tile-horizontal']",
                                                                                     ".//span[@class='typography text v5 -no-margin']",
                                                                                     ".//span[@class='typography text v4 ']",
-                                                                                    ".//a[@data-qa='product-name']"});
+                                                                                    ".//a[@data-qa='product-name']"}));
                         Logger.LogNewLine("└─Конец сбора со ВсехИнструментов");
                     }
 
                     if (parameters.Yandex && yandexDriver is not null)
                     {
                         Logger.LogNewLine($"┌─С Я.Маркета...");
-                        yandexList = yandexDriver.GetValidURL(product.Names[otidoProductIndex], "https://market.yandex.ru/", Array.Empty<string>(), product.Manufacturers[otidoProductIndex]);
+                        yandexTask = Task.Factory.StartNew(() => yandexDriver.GetValidURL(product.Names[otidoProductIndex], "https://market.yandex.ru/", Array.Empty<string>(), product.Manufacturers[otidoProductIndex]));
                         Logger.LogNewLine("└─Конец сбора с Я.Маркета");
                     }
+
+                    var ozonList = ozonTask != null ? ozonTask.Result : new List<string>();
+                    var vseinstrList = vseinstrTask != null ? vseinstrTask.Result : new List<string>();
+                    var yandexList = yandexTask != null ? yandexTask.Result : new List<string>();
 
                     if (ozonList.Count <= 0 && vseinstrList.Count <= 0 && yandexList.Count <= 0)
                         continue;
