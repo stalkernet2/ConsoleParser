@@ -91,9 +91,27 @@ namespace ConsoleParser.Parse
                         Logger.LogNewLine("└─Конец сбора с Я.Маркета");
                     }
 
-                    var ozonList = ozonTask != null ? ozonTask.Result : new List<string>();
-                    var vseinstrList = vseinstrTask != null ? vseinstrTask.Result : new List<string>();
-                    var yandexList = yandexTask != null ? yandexTask.Result : new List<string>();
+                    var ozonList = new List<string>();
+                    var vseinstrList = new List<string>();
+                    var yandexList = new List<string>();
+
+                    if (ozonTask != null)
+                    {
+                        ozonTask.Wait();
+                        ozonList = ozonTask.Result;
+                    }
+
+                    if (vseinstrTask != null)
+                    {
+                        vseinstrTask.Wait();
+                        vseinstrList = vseinstrTask.Result;
+                    }
+
+                    if (yandexTask != null)
+                    {
+                        yandexTask.Wait();
+                        yandexList = yandexTask.Result;
+                    }
 
                     if (ozonList.Count <= 0 && vseinstrList.Count <= 0 && yandexList.Count <= 0)
                         continue;
