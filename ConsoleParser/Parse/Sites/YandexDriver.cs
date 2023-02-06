@@ -57,11 +57,10 @@ namespace ConsoleParser.Parse
             Thread.Sleep(5000);
 
             var product = Filter.ByManufacturers(IParser.GetProductsV3(_driver), manufacture);
-            var product2 = Filter.ByTriggerNum(product, searchCondition);
 
             Logger.LogNewLine($"│└\"{searchCondition}\" с яндекса успешно собран!");
 
-            return Filter.ByAccurasyLevel(product2, searchCondition);
+            return Filter.ByAccuracyLevel(product, searchCondition);
         }
 
         private void Captcha()

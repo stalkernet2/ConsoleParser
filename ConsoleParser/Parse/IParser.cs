@@ -73,16 +73,14 @@ namespace ConsoleParser.Parse
         // .//div/h3/a/span // получение текста. Принимается как массив слов
 
         // 1 тип
-        // основа - <article data-autotest-id="product-snippet" data-zone-name="snippet-card" data-calc-coords="true">
-        // проверка - .//div/div[not(@data-tid)]/div[not(@data-zone-name='picture')]/a[@target='_blank']
-        // имя - .//div/h3/a/span
-        // линк - .//div/div[not(@data-tid)]/div[not(@data-zone-name='picture')]/a[@target='_blank']
+        // проверка - .//div[@data-auto="rating-badge"]
+        // имя - .//h3[@data-zone-name="title"]/a/span
+        // линк - .//h3[@data-zone-name="title"]/a получаем из href
 
         // 2 тип
-        // основа - <article data-autotest-id="product-snippet" data-auto="product-snippet" data-visual-search-onbording-target="list" data-zone-name="snippet-card" data-baobab-name="$result" data-node-cache-key="product-snippet-card-16692143359482179837016002-1" data-calc-coords="true">
-        // проверка - .//div/div/a[@data-baobab-name='rating']
-        // имя - .//div/h3/a/span
-        // линк - .//div/div/a[@data-baobab-name='rating']
+        // проверка - 
+        // имя - 
+        // линк - 
 
         protected private static Stuff GetProductsV3(ChromeDriver chromeDriver)
         {
@@ -106,14 +104,14 @@ namespace ConsoleParser.Parse
             {
                 try
                 {
-                    if (stuff[i].FindElements(By.XPath(".//div/div/a[@data-baobab-name='rating']")).Count > 0)
+                    if (stuff[i].FindElements(By.XPath(".//div[@data-auto=\"rating-badge\"]")).Count > 0)
                     {
-                        xPath = new string[3] { ".//div/div/a[@data-baobab-name='rating']", ".//div/h3/a/span", ".//div/div/a[@data-baobab-name='rating']" };
+                        xPath = new string[3] { ".//div[@data-auto=\"rating-badge\"]", ".//h3[@data-zone-name=\"title\"]/a/span", ".//h3[@data-zone-name=\"title\"]/a" };
                         break;
                     }
-                    else if (stuff[i].FindElements(By.XPath(".//div/div[not(@data-tid)]/div[not(@data-zone-name='picture')]/a[@target='_blank']")).Count > 0)
+                    else if (stuff[i].FindElements(By.XPath(".//div/div[@data-auto=\"tooltip-anchor\"]/div")).Count > 0)
                     {
-                        xPath = new string[3] { ".//div/div[not(@data-tid)]/div[not(@data-zone-name='picture')]/a[@target='_blank']", ".//div/h3/a/span", ".//div/div[not(@data-tid)]/div[not(@data-zone-name='picture')]/a[@target='_blank']" };
+                        xPath = new string[3] { ".//div/div[@data-auto=\"tooltip-anchor\"]/div", ".//div/h3/a/span", ".//div/div[not(@data-tid)]/div[not(@data-zone-name='picture')]/a[@target='_blank']" };
                         break;
                     }
                 }

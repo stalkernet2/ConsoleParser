@@ -7,7 +7,7 @@ namespace ConsoleParser.Parse.Filters
 {
     public class Filter
     {
-        public static List<string> ByAccurasyLevel(Stuff product, string searchCondition, double mThreshold = 16d, double unlimited = 90d)
+        public static List<string> ByAccuracyLevel(Stuff product, string searchCondition, double mThreshold = 16d, double unlimited = 90d)
         {
             Logger.LogNewLine("│├Оценка совпадения наименования...");
 
@@ -111,7 +111,7 @@ namespace ConsoleParser.Parse.Filters
                         stuff = ByTriggerNum(stuff, searchCondition);
                         break;
                     case '3':
-                        return ByAccurasyLevel(stuff, searchCondition);
+                        return ByAccuracyLevel(stuff, searchCondition);
                     default:
                         break;
                 }
