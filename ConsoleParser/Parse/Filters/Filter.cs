@@ -27,7 +27,7 @@ namespace ConsoleParser.Parse.Filters
                     continue;
 
                 Logger.LogOnLine($"│├Получили оценку {i + 1} из {product.Names.Count}");
-                result.Add(OtherStuff.ClearGarbage(product.Links[i], '?') + (accuracy <= unlimited ? " " + (int)accuracy + "%" : ""));
+                result.Add(OtherStuff.ClearGarbage(product.Links[i], '?') + (accuracy < unlimited ? " " + (int)accuracy + "%" : ""));
             }
             
             return result;

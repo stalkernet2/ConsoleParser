@@ -93,16 +93,17 @@ namespace ConsoleParser.Parse
                                                                                     ".//a[@data-qa='product-name']"}));
                         Logger.LogNewLine("└─Конец сбора со ВсехИнструментов");
                     }
-                    var yandexList = new List<string>();
+                    
                     if (parameters.Yandex && yandexDriver is not null)
                     {
                         Logger.LogNewLine($"┌─С Я.Маркета...");
-                        yandexList = /*yandexTask = Task.Factory.StartNew(() =>*/ yandexDriver.GetValidURL(product.Names[otidoProductIndex], "https://market.yandex.ru/", Array.Empty<string>(), product.Manufacturers[otidoProductIndex]);
+                        yandexTask = Task.Factory.StartNew(() => yandexDriver.GetValidURL(product.Names[otidoProductIndex], "https://market.yandex.ru/", Array.Empty<string>(), product.Manufacturers[otidoProductIndex]));
                         Logger.LogNewLine("└─Конец сбора с Я.Маркета");
                     }
 
                     var ozonList = new List<string>();
                     var vseinstrList = new List<string>();
+                    var yandexList = new List<string>();
 
                     if (ozonTask != null)
                     {

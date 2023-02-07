@@ -56,11 +56,12 @@ namespace ConsoleParser.Parse
 
             Thread.Sleep(5000);
 
-            var product = Filter.ByManufacturers(IParser.GetProductsV3(_driver), manufacture);
+            var product =   Filter.ByAccuracyLevel(
+                            Filter.ByManufacturers(IParser.GetProductsV3(_driver), manufacture), searchCondition);
 
             Logger.LogNewLine($"│└\"{searchCondition}\" с яндекса успешно собран!");
 
-            return Filter.ByAccuracyLevel(product, searchCondition);
+            return product;
         }
 
         private void Captcha()

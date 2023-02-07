@@ -89,7 +89,7 @@ namespace ConsoleParser.Parse
 
             if (stuff.Count == 0)
             {
-                Logger.LogNewLine("│├Не удалось что-либо найти");
+                Logger.LogNewLine("│├Не удалось что-либо найти для ", LogEnum.Warning);
                 return new Stuff();
             }
 
@@ -98,65 +98,15 @@ namespace ConsoleParser.Parse
             var nameList = new List<string>();
             var linkList = new List<string>();
 
-            var xPath = Array.Empty<string>();
-
-            for (int i = 0; i < stuff.Count; i++)
-            {
-                try
-                {
-                    if (stuff[i].FindElements(By.XPath(".//div[@data-auto=\"rating-badge\"]")).Count > 0)
-                    {
-                        xPath = new string[3] { ".//div[@data-auto=\"rating-badge\"]", ".//h3[@data-zone-name=\"title\"]/a/span", ".//h3[@data-zone-name=\"title\"]/a" };
-                        break;
-                    }
-                    else if (stuff[i].FindElements(By.XPath(".//div/div[@data-auto=\"tooltip-anchor\"]/div")).Count > 0)
-                    {
-                        xPath = new string[3] { ".//div/div[@data-auto=\"tooltip-anchor\"]/div", ".//div/h3/a/span", ".//div/div[not(@data-tid)]/div[not(@data-zone-name='picture')]/a[@target='_blank']" };
-                        break;
-                    }
-                }
-                catch
-                {
-                    try
-                    {
-                        if (stuff[i].FindElements(By.XPath(".//div/div[not(@data-tid)]/div[not(@data-zone-name='picture')]/a[@target='_blank']")).Count > 0)
-                        {
-                            xPath = new string[3] { ".//div/div[not(@data-tid)]/div[not(@data-zone-name='picture')]/a[@target='_blank']", ".//div/h3/a/span", ".//div/div[not(@data-tid)]/div[not(@data-zone-name='picture')]/a[@target='_blank']" };
-                            break;
-                        }
-                    }
-                    catch
-                    {
-
-                    }
-                }
-            }
-
-            if (xPath.Length == 0)
-            {
-                Logger.LogNewLine("│├Не удалось что-либо найти");
-                return new Stuff();
-            }
-
             Thread.Sleep(1000);
 
             Logger.LogNewLine("│├Сбор информации товара...");
             for (int i = 0; i < stuff.Count; i++)
             {
                 Logger.LogOnLine($"│├Собрано {i + 1} из {stuff.Count}...");
-                try
-                {
-                    if (stuff[i].FindElements(By.XPath(xPath[0])).Count == 0)
-                        continue;
-                }
-                catch
-                {
-                    Logger.LogNewLine("│├Неудалось найти нужный див(возможно страница не успела загрузиться)...", LogEnum.Error);
-                    continue;
-                }
 
-                nameList.Add(ToArray(stuff[i].FindElements(By.XPath(xPath[1]))));
-                linkList.Add(OtherStuff.ClearGarbage(stuff[i].FindElement(By.XPath(xPath[2])).GetAttribute("href"), '?'));
+                nameList.Add(ToArray(stuff[i].FindElements(By.XPath(".//div/h3/a/span"))));
+                linkList.Add(OtherStuff.ClearGarbage(stuff[i].FindElement(By.XPath(".//div/h3/a")).GetAttribute("href"), '?'));
             }
 
             return new Stuff(nameList, linkList);
