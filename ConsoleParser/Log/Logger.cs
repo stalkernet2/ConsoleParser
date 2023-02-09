@@ -13,6 +13,8 @@ namespace ConsoleParser
         private static string fileLog = "";
         private static string path = "logs";
 
+        
+
         public static void Init()
         {
             if (!Directory.Exists(path))
@@ -80,10 +82,10 @@ namespace ConsoleParser
             text.SetColor(color);
         }
 
-        private static void WriteTextInLogFile(string value)
+        private static async void WriteTextInLogFile(string value)
         {
-            var sw = File.AppendText($"{path}/{fileLog}");
-            sw.WriteLine(value);
+            using var sw = File.AppendText($"{path}/{fileLog}");
+            await sw.WriteAsync(value + Environment.NewLine);
             sw.Close();
         }
     }

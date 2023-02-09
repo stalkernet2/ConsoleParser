@@ -60,28 +60,23 @@ namespace ConsoleParser
             APIName = presets.APIName;
             SpreadsheetId = presets.SpreadsheetId;
             CaptchaKey = presets.CaptchaKey;
-
-            Logger.LogNewLine($"Параметры из {filePath} успешно загружены!");
         }
 
         public static Parameters GetFromFile(string filePath)
         {
-            Logger.LogNewLine($"Загрузка параметров из {filePath}...");
-
+            bool isExist = false;
             if (!File.Exists(filePath))
-            {
-                Logger.LogNewLine("Параметры небыли загружены! Файла с параметрами не существует.", LogEnum.Error);
-                return new Parameters();
-            }
+                isExist = true;
 
+            if (isExist)
+                throw new FileNotFoundException();
             var jsonString = File.ReadAllText(filePath);
             var presets = JsonSerializer.Deserialize<Parameters>(jsonString);
 
-            Logger.LogNewLine("Инициализация параметров...");
             return presets;
         }
 
-        public static void DebugSave()
+        public static void SaveTemplate()
         {
             var we = new Parameters();
             we.AsyncSave("config/presets.json");

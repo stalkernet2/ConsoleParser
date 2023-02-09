@@ -17,7 +17,27 @@ namespace ConsoleParser
             Logger.LogNewLine("Версия платформы: " + RuntimeInformation.FrameworkDescription);
             Logger.LogNewLine("Версия приложения: " + typeof(Program).Assembly.GetName().Version);
 
-            var parameters = new Parameters("config/presets.json");
+            Parameters parameters;
+            Logger.LogNewLine("Загрузка параметров...");
+            try
+            {
+                parameters = new Parameters("config/presets.json");
+            }
+            catch(FileNotFoundException ex)
+            {
+                Logger.LogNewLine("...неудачна!", LogEnum.Error);
+                Logger.LogNewLine($"Файла с параметрами не существует. Создаем...");
+                File.Create("config/presets.json").Close();
+                Parameters.SaveTemplate();
+                return;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogNewLine("...неудачна!", LogEnum.Error);
+                Logger.LogNewLine($"Причина неудачной загрузки: {ex.Message}");
+                return;
+            }
+            Logger.LogNewLine("...успешна!");
 
             Logger.LogNewLine("StartPage:      " + parameters.StartPage);
             Logger.LogNewLine("EndPage:        " + parameters.EndPage);
@@ -84,12 +104,12 @@ namespace ConsoleParser
                     case ConsoleKey.D2:
                         tempBool = false;
                         Logger.LogNewLine("Запуск таймера.");
-                        //TimerP.Init(parameters, new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second + 10), new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second + 20)); // debug
-                        TimerP.Init(parameters, new TimeSpan(1, 0, 0), new TimeSpan(6, 0, 0));
+                        TimerP.Init(parameters, new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second + 10), new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second + 20)); // debug
+                        //TimerP.Init(parameters, new TimeSpan(1, 0, 0), new TimeSpan(6, 0, 0));
                         break;
                     case ConsoleKey.D3:
                         tempBool = false;
-                        Parameters.DebugSave();
+                        Parameters.SaveTemplate();
                         break;
                     case ConsoleKey.NumPad1:
                         goto case ConsoleKey.D1;
@@ -104,7 +124,7 @@ namespace ConsoleParser
                         break;
                 }
 
-                Logger.OnLine();
+                // Logger.OnLine();
             }
 
             Logger.LogNewLine("Нажмите любую клавишу(кроме кнопки выключения компьютера), чтобы закрыть это окно");
