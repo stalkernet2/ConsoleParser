@@ -1,5 +1,7 @@
 ﻿using ConsoleParser.Parse.EnumerableParser.SConfig;
 using ConsoleParser.Stuffs;
+using OpenQA.Selenium;
+using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.DevTools.V105.Debugger;
 using System.Linq;
 
@@ -7,7 +9,7 @@ namespace ConsoleParser.Parse.Filters
 {
     public class Filter
     {
-        public static List<string> ByAccuracyLevel(Stuff product, string searchCondition, double mThreshold = 16d, double unlimited = 90d)
+        public static List<string> ByAccuracyLevel(Stuff product, string searchCondition, double mThreshold = 30d, double unlimited = 90d)
         {
             Logger.LogNewLine("│├Оценка совпадения наименования...");
 
@@ -33,7 +35,7 @@ namespace ConsoleParser.Parse.Filters
             return result;
         }
 
-        public static Stuff ByManufacturers(Stuff product, string manufacture)
+        public static Stuff ByManufacturerInName(Stuff product, string manufacture)
         {
             var names = new List<string>();
             var links = new List<string>();
@@ -45,6 +47,37 @@ namespace ConsoleParser.Parse.Filters
             for (int i = 0; i < product.Links.Count; i++)
             {
                 if (product.Names[i].ToLower().Contains(manufacturer[0]))
+                {
+                    names.Add(product.Names[i]);
+                    links.Add(product.Links[i]);
+                }
+
+                Logger.LogOnLine($"│├Отфильтровано {i + 1} из {product.Links.Count}");
+            }
+
+            return new Stuff(names, links);
+        }
+
+        public static Stuff ByManufacturerOnPage(Stuff product, string manufacture)
+        {
+            var names = new List<string>();
+            var links = new List<string>();
+
+            var manufacturer = manufacture.Split(' ');
+
+            Logger.LogNewLine("│├Фильтрация по наличию производителя на странице...");
+
+            for (int i = 0; i < product.Links.Count; i++)
+            {
+                using var chromeDriver = new ChromeDriver();
+
+                chromeDriver.Manage().Timeouts().ImplicitWait = new TimeSpan(0, 0, 5);
+                chromeDriver.Navigate().GoToUrl(product.Links[i]);
+
+                if (chromeDriver.FindElement(By.XPath(".//div[@data-widget='webBrand']/div/a")) == null)
+                    continue;
+
+                if (chromeDriver.FindElement(By.XPath(".//div[@data-widget='webBrand']/div/a")).GetAttribute("href").ToLower().Contains(manufacturer[0]))
                 {
                     names.Add(product.Names[i]);
                     links.Add(product.Links[i]);
@@ -105,7 +138,7 @@ namespace ConsoleParser.Parse.Filters
                 switch (config.Rules[i])
                 {
                     case '1':
-                        stuff = ByManufacturers(stuff, manufacture);
+                        stuff = ByManufacturerInName(stuff, manufacture);
                         break;
                     case '2':
                         stuff = ByTriggerNum(stuff, searchCondition);

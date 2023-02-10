@@ -13,8 +13,6 @@ namespace ConsoleParser
         private static string fileLog = "";
         private static string path = "logs";
 
-        
-
         public static void Init()
         {
             if (!Directory.Exists(path))

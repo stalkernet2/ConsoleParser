@@ -8,7 +8,7 @@ namespace ConsoleParser.Parse
         {
             var product = IParser.GetProductsV2(searchCondition, searchURL, XPaths);
 
-            var result = Filter.ByAccuracyLevel(Filter.ByManufacturers(product, manufacture), searchCondition);
+            var result = Filter.ByAccuracyLevel(Filter.ByManufacturerInName(product, manufacture), searchCondition);
 
             Logger.LogNewLine($"│└{searchCondition} с озона успешно собрано!");
             return result;

@@ -63,13 +63,7 @@ namespace ConsoleParser
         }
 
         public static Parameters GetFromFile(string filePath)
-        {
-            bool isExist = false;
-            if (!File.Exists(filePath))
-                isExist = true;
-
-            if (isExist)
-                throw new FileNotFoundException();
+        { 
             var jsonString = File.ReadAllText(filePath);
             var presets = JsonSerializer.Deserialize<Parameters>(jsonString);
 

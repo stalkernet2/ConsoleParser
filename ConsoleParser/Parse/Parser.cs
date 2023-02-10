@@ -69,8 +69,9 @@ namespace ConsoleParser.Parse
                         Logger.LogNewLine($"┌─С Озона...");
                         searcher = new Ozon();
                         ozonTask = Task.Factory.StartNew(() => searcher.GetValidURL(searchCondition: product.Names[otidoProductIndex],
+                                                        manufacture: product.Manufacturers[otidoProductIndex],
                                                         searchURL: "https://www.ozon.ru/search/?text=",
-                                                        XPaths: new string[4] { $".//div[@class='{parameters.DivClass}']",
+                                                        XPaths: new string[4] { $".//div[@class='{parameters.DivClass}']", // .//div[@data-widget='searchResultsV2']/div/div
                                                                                 $".//span[@class='{parameters.AClass}']",
                                                                                 $".//div/a/span/span",
                                                                                 $".//a[@data-prerender='true']"},

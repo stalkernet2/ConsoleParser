@@ -104,8 +104,8 @@ namespace ConsoleParser
                     case ConsoleKey.D2:
                         tempBool = false;
                         Logger.LogNewLine("Запуск таймера.");
-                        TimerP.Init(parameters, new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second + 10), new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second + 20)); // debug
-                        //TimerP.Init(parameters, new TimeSpan(1, 0, 0), new TimeSpan(6, 0, 0));
+                        //TimerP.Init(parameters, new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second + 10), new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second + 20)); // debug
+                        TimerP.Init(parameters, new TimeSpan(1, 0, 0), new TimeSpan(6, 0, 0));
                         break;
                     case ConsoleKey.D3:
                         tempBool = false;
@@ -119,8 +119,6 @@ namespace ConsoleParser
                         goto case ConsoleKey.D3;
                     case ConsoleKey.Escape:
                         Environment.Exit(0);
-                        break;
-                    default:
                         break;
                 }
 

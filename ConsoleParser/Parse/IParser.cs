@@ -15,7 +15,7 @@ namespace ConsoleParser.Parse
         {
             Logger.LogNewLine("│┌Попытка запуска сборщика...");
             using var chromeDriver = new ChromeDriver();
-            chromeDriver.Manage().Timeouts().PageLoad = TimeSpan.FromSeconds(25);
+            chromeDriver.Manage().Timeouts().ImplicitWait = new TimeSpan(0, 0, 5);
 
             for (int i = 1; i < 3; i++)
             {
@@ -49,6 +49,10 @@ namespace ConsoleParser.Parse
             for (int i = 0; i < stuff.Count; i++) 
             {
                 Logger.LogOnLine($"│├Собрано {i + 1} из {stuff.Count}...");
+
+                if (stuff[i].FindElements(By.XPath(XPaths[1])) == null)
+                    continue;
+
                 var validTest = stuff[i].FindElements(By.XPath(XPaths[1])).Count; // second
 
                 if(validTest >= validValue)
