@@ -74,7 +74,9 @@ namespace ConsoleParser.Parse.Filters
                 chromeDriver.Manage().Timeouts().ImplicitWait = new TimeSpan(0, 0, 5);
                 chromeDriver.Navigate().GoToUrl(product.Links[i]);
 
-                if (chromeDriver.FindElement(By.XPath(".//div[@data-widget='webBrand']/div/a")) == null)
+                var elementIsNull = chromeDriver.FindElements(By.XPath(".//div[@data-widget='webBrand']/div/a"));
+
+                if (elementIsNull == null)
                     continue;
 
                 if (chromeDriver.FindElement(By.XPath(".//div[@data-widget='webBrand']/div/a")).GetAttribute("href").ToLower().Contains(manufacturer[0]))

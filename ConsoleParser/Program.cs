@@ -121,7 +121,6 @@ namespace ConsoleParser
                         Environment.Exit(0);
                         break;
                 }
-
                 // Logger.OnLine();
             }
 
