@@ -56,8 +56,10 @@ namespace ConsoleParser.Parse
             {
                 if (_driver.FindElements(By.XPath(".//body/center/h1")).Count > 0)
                     _driver.Navigate().Refresh();
+                else
+                    break;
 
-                if(i == 2)
+                if (i == 2)
                     return new List<string>();
             }
 
