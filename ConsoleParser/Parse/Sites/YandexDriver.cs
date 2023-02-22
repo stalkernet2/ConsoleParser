@@ -49,6 +49,17 @@ namespace ConsoleParser.Parse
             Logger.LogNewLine("│├Проверка на наличие капчи...");
             if (_driver.FindElements(By.XPath(".//div[@class='CheckboxCaptcha-Anchor']")).Count > 0)
                 Captcha();
+            else
+                Logger.LogNewLine("│├Капча не найдена!");
+
+            for (int i = 0; i < 3; i++)
+            {
+                if (_driver.FindElements(By.XPath(".//body/center/h1")).Count > 0)
+                    _driver.Navigate().Refresh();
+
+                if(i == 2)
+                    return new List<string>();
+            }
 
             _driver.FindElement(By.XPath(".//input[@type='text']")).Clear();
             _driver.FindElement(By.XPath(".//input[@type='text']")).SendKeys(searchCondition);
