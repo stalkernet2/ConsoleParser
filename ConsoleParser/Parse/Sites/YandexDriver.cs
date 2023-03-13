@@ -71,7 +71,7 @@ namespace ConsoleParser.Parse
 
             var product =   Filter.ByAccuracyLevel(
                             Filter.ByRatingOnPage(
-                            Filter.ByManufacturerInName(IParser.GetProductsV3(_driver), manufacture), searchCondition), _captchaKey);
+                            Filter.ByManufacturerInName(IParser.GetProductsV3(_driver), manufacture), _captchaKey), searchCondition);
 
             Logger.LogNewLine($"│└\"{searchCondition}\" с яндекса успешно собран!");
 
