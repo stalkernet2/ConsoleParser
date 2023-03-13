@@ -3,7 +3,6 @@ using System.Collections.ObjectModel;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using ConsoleParser.Stuffs;
-using OpenQA.Selenium.DevTools.V105.Debugger;
 
 namespace ConsoleParser.Parse
 {

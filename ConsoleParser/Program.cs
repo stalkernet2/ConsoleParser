@@ -9,6 +9,7 @@ namespace ConsoleParser
 
         static void Main(string[] args)
         {
+            Console.Title = Name;
             //DebugMoment();
 
             Logger.Init();

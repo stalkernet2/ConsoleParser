@@ -48,7 +48,7 @@ namespace ConsoleParser.Parse
 
             Logger.LogNewLine("│├Проверка на наличие капчи...");
             if (_driver.FindElements(By.XPath(".//div[@class='CheckboxCaptcha-Anchor']")).Count > 0)
-                Captcha();
+                Captcha(_driver, _captchaKey);
             else
                 Logger.LogNewLine("│├Капча не найдена!");
 
@@ -70,26 +70,27 @@ namespace ConsoleParser.Parse
             Thread.Sleep(5000);
 
             var product =   Filter.ByAccuracyLevel(
-                            Filter.ByManufacturerInName(IParser.GetProductsV3(_driver), manufacture), searchCondition);
+                            Filter.ByRatingOnPage(
+                            Filter.ByManufacturerInName(IParser.GetProductsV3(_driver), manufacture), searchCondition), _captchaKey);
 
             Logger.LogNewLine($"│└\"{searchCondition}\" с яндекса успешно собран!");
 
             return product;
         }
 
-        private void Captcha()
+        public static void Captcha(ChromeDriver driver, string captchaKey)
         {
             Logger.LogNewLine("│├Прохождение капчи...");
-            _driver.FindElement(By.XPath(".//div[@class='CheckboxCaptcha-Anchor']")).Click();
+            driver.FindElement(By.XPath(".//div[@class='CheckboxCaptcha-Anchor']")).Click();
             Thread.Sleep(1000);
-            var textBoxes = _driver.FindElements(By.XPath(".//input[@class='Textinput-Control']"));
+            var textBoxes = driver.FindElements(By.XPath(".//input[@class='Textinput-Control']"));
 
-            var solver = new TwoCaptcha.TwoCaptcha(_captchaKey);
+            var solver = new TwoCaptcha.TwoCaptcha(captchaKey);
 
             while (textBoxes.Count > 0)
             {
                 Thread.Sleep(1000);
-                var imageURL = _driver.FindElement(By.XPath(".//img[@class='AdvancedCaptcha-Image']")).GetAttribute("src");
+                var imageURL = driver.FindElement(By.XPath(".//img[@class='AdvancedCaptcha-Image']")).GetAttribute("src");
                 using (var client = new WebClient())
                     client.DownloadFile(imageURL, "captcha.jpg");
 
@@ -97,10 +98,10 @@ namespace ConsoleParser.Parse
                 Logger.LogNewLine("│├Получаем код капчи...");
                 solver.Solve(captcha).Wait();
                 Logger.LogNewLine($"│├Вводим \"{captcha.Code}\"");
-                _driver.FindElement(By.XPath(".//input[@class='Textinput-Control']")).SendKeys(captcha.Code);
-                _driver.FindElement(By.XPath(".//button[@type='submit']")).Click();
+                driver.FindElement(By.XPath(".//input[@class='Textinput-Control']")).SendKeys(captcha.Code);
+                driver.FindElement(By.XPath(".//button[@type='submit']")).Click();
 
-                textBoxes = _driver.FindElements(By.XPath(".//input[@class='Textinput-Control']"));
+                textBoxes = driver.FindElements(By.XPath(".//input[@class='Textinput-Control']"));
             }
         }
     }

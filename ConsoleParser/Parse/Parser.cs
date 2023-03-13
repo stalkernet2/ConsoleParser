@@ -53,7 +53,7 @@ namespace ConsoleParser.Parse
 
                 for (int otidoProductIndex = 0; otidoProductIndex < product.Names.Count; otidoProductIndex++)
                 {
-                    Console.Title = $"{Program.Name} ({otidoProductIndex + 1} из {product.Names.Count})";
+                    Console.Title = $"{Program.Name} (Этап: Страница - {pageNum} из {parameters.EndPage}; Товар - {otidoProductIndex + 1} из {product.Names.Count})";
 
                     Logger.LogNewLine($"Получение отзывов для \"{product.Names[otidoProductIndex]}\" ({otidoProductIndex + 1} из {product.Names.Count})...");
 
