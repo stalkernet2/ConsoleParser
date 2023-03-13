@@ -16,8 +16,18 @@ namespace ConsoleParser.Parse
             {
                 SpreadsheetId = parameters.SpreadsheetId,
             };
-
-            var mainDriver = new ChromeDriver();
+            ChromeDriver mainDriver;
+            try
+            {
+                mainDriver = new ChromeDriver();
+            }
+            catch(Exception e)
+            {
+                if (e.Message.Contains("version"))
+                    Logger.LogNewLine($"Версия chromeDriver({e.Message.Split(' ')[11].Remove(3)}) не предназначена для версии браузера({e.Message.Split(' ')[15]})", LogEnum.Error);
+                Logger.LogNewLine($"Выполнение парсинга прервано!", LogEnum.Error);
+                return Task.CompletedTask;
+            }
 
             YandexDriver? yandexDriver = null;
             if (parameters.Yandex)
@@ -43,7 +53,7 @@ namespace ConsoleParser.Parse
 
                 for (int otidoProductIndex = 0; otidoProductIndex < product.Names.Count; otidoProductIndex++)
                 {
-                    Console.Title = $"{Program.Name} ({otidoProductIndex + 1} из {product.Names.Count})";
+                    Console.Title = $"{Program.Name} (Этап: Страница - {pageNum} из {parameters.EndPage}; Товар - {otidoProductIndex + 1} из {product.Names.Count})";
 
                     Logger.LogNewLine($"Получение отзывов для \"{product.Names[otidoProductIndex]}\" ({otidoProductIndex + 1} из {product.Names.Count})...");
 
@@ -59,8 +69,9 @@ namespace ConsoleParser.Parse
                         Logger.LogNewLine($"┌─С Озона...");
                         searcher = new Ozon();
                         ozonTask = Task.Factory.StartNew(() => searcher.GetValidURL(searchCondition: product.Names[otidoProductIndex],
+                                                        manufacture: product.Manufacturers[otidoProductIndex],
                                                         searchURL: "https://www.ozon.ru/search/?text=",
-                                                        XPaths: new string[4] { $".//div[@class='{parameters.DivClass}']",
+                                                        XPaths: new string[4] { $".//div[@class='{parameters.DivClass}']", // .//div[@data-widget='searchResultsV2']/div/div
                                                                                 $".//span[@class='{parameters.AClass}']",
                                                                                 $".//div/a/span/span",
                                                                                 $".//a[@data-prerender='true']"},
@@ -83,7 +94,7 @@ namespace ConsoleParser.Parse
                                                                                     ".//a[@data-qa='product-name']"}));
                         Logger.LogNewLine("└─Конец сбора со ВсехИнструментов");
                     }
-
+                    
                     if (parameters.Yandex && yandexDriver is not null)
                     {
                         Logger.LogNewLine($"┌─С Я.Маркета...");
@@ -91,9 +102,27 @@ namespace ConsoleParser.Parse
                         Logger.LogNewLine("└─Конец сбора с Я.Маркета");
                     }
 
-                    var ozonList = ozonTask != null ? ozonTask.Result : new List<string>();
-                    var vseinstrList = vseinstrTask != null ? vseinstrTask.Result : new List<string>();
-                    var yandexList = yandexTask != null ? yandexTask.Result : new List<string>();
+                    var ozonList = new List<string>();
+                    var vseinstrList = new List<string>();
+                    var yandexList = new List<string>();
+
+                    if (ozonTask != null)
+                    {
+                        ozonTask.Wait();
+                        ozonList = ozonTask.Result;
+                    }
+
+                    if (vseinstrTask != null)
+                    {
+                        vseinstrTask.Wait();
+                        vseinstrList = vseinstrTask.Result;
+                    }
+
+                    if (yandexTask != null)
+                    {
+                        yandexTask.Wait();
+                        yandexList = yandexTask.Result;
+                    }
 
                     if (ozonList.Count <= 0 && vseinstrList.Count <= 0 && yandexList.Count <= 0)
                         continue;

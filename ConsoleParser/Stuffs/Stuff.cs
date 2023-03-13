@@ -21,6 +21,28 @@ namespace ConsoleParser.Stuffs
             Links = links;
         }
 
+        public void Add(string name, string link)
+        {
+            Names.Add(name);
+            Links.Add(link);
+            var we = new List<(string, string)>();
+        }
+
+        public (string, string) Get(int index) => (Names[index], Links[index]);
+
+        public void RemoveAt(int index)
+        {
+            Names.RemoveAt(index);
+            Links.RemoveAt(index);
+        }
+
+        public void RemoveAt(ref int index)
+        {
+            Names.RemoveAt(index);
+            Links.RemoveAt(index);
+            index--;
+        }
+
         protected private static List<string> GetTextList(ReadOnlyCollection<IWebElement> readOnlyCollection)
         {
             var list = new List<string>();

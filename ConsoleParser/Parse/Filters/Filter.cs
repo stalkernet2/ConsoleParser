@@ -1,13 +1,15 @@
 ﻿using ConsoleParser.Parse.EnumerableParser.SConfig;
 using ConsoleParser.Stuffs;
-using OpenQA.Selenium.DevTools.V105.Debugger;
+using OpenQA.Selenium;
+using OpenQA.Selenium.Chrome;
 using System.Linq;
 
 namespace ConsoleParser.Parse.Filters
 {
     public class Filter
     {
-        public static List<string> ByAccurasyLevel(Stuff product, string searchCondition, double mThreshold = 16d, double unlimited = 90d)
+        // .//div[@data-auto="tooltip-anchor"]/a - фильтр по наличию отзывов на самой странице(яндекс маркет)
+        public static List<string> ByAccuracyLevel(Stuff product, string searchCondition, double mThreshold = 30d, double unlimited = 90d)
         {
             Logger.LogNewLine("│├Оценка совпадения наименования...");
 
@@ -27,13 +29,13 @@ namespace ConsoleParser.Parse.Filters
                     continue;
 
                 Logger.LogOnLine($"│├Получили оценку {i + 1} из {product.Names.Count}");
-                result.Add(OtherStuff.ClearGarbage(product.Links[i], '?') + (accuracy <= unlimited ? " " + (int)accuracy + "%" : ""));
+                result.Add(OtherStuff.ClearGarbage(product.Links[i], '?') + (accuracy < unlimited ? " " + (int)accuracy + "%" : ""));
             }
             
             return result;
         }
 
-        public static Stuff ByManufacturers(Stuff product, string manufacture)
+        public static Stuff ByManufacturerInName(Stuff product, string manufacture)
         {
             var names = new List<string>();
             var links = new List<string>();
@@ -45,6 +47,39 @@ namespace ConsoleParser.Parse.Filters
             for (int i = 0; i < product.Links.Count; i++)
             {
                 if (product.Names[i].ToLower().Contains(manufacturer[0]))
+                {
+                    names.Add(product.Names[i]);
+                    links.Add(product.Links[i]);
+                }
+
+                Logger.LogOnLine($"│├Отфильтровано {i + 1} из {product.Links.Count}");
+            }
+
+            return new Stuff(names, links);
+        }
+
+        public static Stuff ByManufacturerOnPage(Stuff product, string manufacture) // Распространяется только на OZON
+        {
+            var names = new List<string>();
+            var links = new List<string>();
+
+            var manufacturer = manufacture.Split(' ');
+
+            Logger.LogNewLine("│├Фильтрация по наличию производителя на странице...");
+
+            for (int i = 0; i < product.Links.Count; i++)
+            {
+                using var chromeDriver = new ChromeDriver();
+
+                chromeDriver.Manage().Timeouts().ImplicitWait = new TimeSpan(0, 0, 5);
+                chromeDriver.Navigate().GoToUrl(product.Links[i]);
+
+                var elementIsNull = chromeDriver.FindElements(By.XPath(".//div[@data-widget='webBrand']/div/a"));
+
+                if (elementIsNull == null)
+                    continue;
+
+                if (chromeDriver.FindElement(By.XPath(".//div[@data-widget='webBrand']/div/a")).GetAttribute("href").ToLower().Contains(manufacturer[0]))
                 {
                     names.Add(product.Names[i]);
                     links.Add(product.Links[i]);
@@ -85,17 +120,50 @@ namespace ConsoleParser.Parse.Filters
                 return product;
 
             for (int i = 0; i < product.Names.Count; i++)
-            {
-                
                 if (product.Names[i].Contains(validNum))
-                {
-                    stuff.Names.Add(product.Names[i]);
-                    stuff.Links.Add(product.Links[i]);
-                }
-                    
-            }
+                    stuff.Add(product.Names[i], product.Links[i]);
 
             return stuff;
+        }
+
+        public static Stuff ByRatingOnPage(Stuff product, string captchaKey) // Распространяется на Яндекс.Маркет
+        {
+            var yandexFilterChrome = new ChromeDriver();
+
+            for (int i = 0; i < product.Names.Count; i++)
+            {
+                yandexFilterChrome.Navigate().GoToUrl(product.Links[i]);
+
+                Logger.LogNewLine("│├Проверка на наличие капчи в драйвере фильтра...");
+                if (yandexFilterChrome.FindElements(By.XPath(".//div[@class='CheckboxCaptcha-Anchor']")).Count > 0)
+                    YandexDriver.Captcha(yandexFilterChrome, captchaKey);
+                else
+                    Logger.LogNewLine("│├Капча не найдена!");
+
+                var xPath = ".//div[@data-auto=\"tooltip-anchor\"]/a"; // Стандарт
+                var validNum = 1;
+
+                if (product.Links[i].Contains("offer"))
+                {
+                    xPath = ".//div[@data-baobab-name=\"$productActions\"]//a"; // Если оффер
+                    validNum = 2;
+                }
+                
+                var ratingIsExist = yandexFilterChrome.FindElements(By.XPath(xPath)).Count; // Если равно двум - true
+
+                string ratingText = "";
+                if (ratingIsExist != 0)
+                    ratingText = yandexFilterChrome.FindElement(By.XPath(xPath)).Text;
+
+                if (ratingIsExist == validNum && char.IsDigit(ratingText[0])) // .//div[@data-baobab-name="$productActions"]//a
+                    continue;
+
+                product.RemoveAt(ref i);
+            }
+
+            yandexFilterChrome.Close();
+
+            return product;
         }
 
         public static List<string> ByRules(Stuff stuff, SearchConfig config, string searchCondition, string manufacture)
@@ -105,13 +173,13 @@ namespace ConsoleParser.Parse.Filters
                 switch (config.Rules[i])
                 {
                     case '1':
-                        stuff = ByManufacturers(stuff, manufacture);
+                        stuff = ByManufacturerInName(stuff, manufacture);
                         break;
                     case '2':
                         stuff = ByTriggerNum(stuff, searchCondition);
                         break;
                     case '3':
-                        return ByAccurasyLevel(stuff, searchCondition);
+                        return ByAccuracyLevel(stuff, searchCondition);
                     default:
                         break;
                 }

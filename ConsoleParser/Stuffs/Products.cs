@@ -10,10 +10,8 @@ using System.Threading.Tasks;
 
 namespace ConsoleParser.Stuffs
 {
-    public class Products
+    public class Products : Stuff
     {
-        public List<string> Names { get; set; }
-        public List<string> Links { get; set; }
         public List<string> Manufacturers { get; set; }
 
 
