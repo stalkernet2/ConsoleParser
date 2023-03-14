@@ -2,6 +2,9 @@
 using GoogleSheetsAPI;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
+using System;
+using System.Net;
+using System.Threading;
 
 namespace ConsoleParser.Parse
 {
@@ -9,6 +12,9 @@ namespace ConsoleParser.Parse
     {
         public static Task Start(Parameters parameters)
         {
+            if(!ConnectionIsExist(parameters.URL).Result)
+                return Task.FromResult(0);
+
             IParser searcher;
 
             Logger.LogNewLine("Инициализация Гугл таблиц...");
@@ -16,7 +22,9 @@ namespace ConsoleParser.Parse
             {
                 SpreadsheetId = parameters.SpreadsheetId,
             };
+
             ChromeDriver mainDriver;
+
             try
             {
                 mainDriver = new ChromeDriver();
@@ -152,6 +160,36 @@ namespace ConsoleParser.Parse
 
             Logger.LogNewLine($"Парсер успешно прошелся с {parameters.StartPage} по {parameters.EndPage} страницу!");
             return Task.CompletedTask;
+        }
+
+        private static async Task<bool> ConnectionIsExist(string url)
+        {
+            for (int i = 1; i <= 5; i++)
+            {
+                Logger.LogNewLine($"Попытка подключиться к сайту {i}...", LogEnum.Warning);
+
+                using var httpClient = new HttpClient();
+                httpClient.Timeout = new TimeSpan(0, 0, 30);
+
+                try
+                {
+                    HttpResponseMessage responce = await httpClient.GetAsync(url);
+
+                    //responce.EnsureSuccessStatusCode();
+                    //string responseBody = await responce.Content.ReadAsStringAsync();
+
+                    Logger.LogNewLine($"...успешная!");
+                    return true;
+                }
+                catch (HttpRequestException e)
+                {
+                    Logger.LogNewLine($"...провальная", LogEnum.Error);
+                    Thread.Sleep(30000);
+                    continue;
+                }
+            }
+            Logger.LogNewLine($"Отсутствует подключение к интернету!", LogEnum.Error);
+            return false;
         }
     }
 }
