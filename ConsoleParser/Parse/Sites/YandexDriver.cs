@@ -8,21 +8,9 @@ namespace ConsoleParser.Parse
 {
     public class YandexDriver : IParser // https://market.yandex.ru/
     {
-        // .//article[@data-auto="product-snippet"] // карточка товара // не рабочий способ
-        // .//a[@data-auto="product-title"] //  наименование товара (через title=)
-        // .//a[@data-zone-name="rating"] // получение рейтинга. Отсюда же можно взять ссылку на отзывы(через href=)
-
-        // .//div[@class='_1GfBD'] // карточка товара
-        // .//div/div/a[@target='_blank'] рейтинг товара
-        // .//div[@data-apiary-widget-name="@marketfront/SearchSerp"]//div[@class='_1GfBD']/div/div/a[@target='_blank']
-
-        // Особая система сбора карточек
-        // .//article[@data-calc-coords='true'] // карточка товара
-        // Этап получения рейтинга
-        // .//article[@data-calc-coords='true']/div/div/div/a[@target='_blank'] // xpath и img элемента, и a элемента
-        // Скрипт проверяющий на наличие .//div/img элемента 
-        // Если есть - скип, если нет - добавляет карточка товара в новосозданный список
-        // .//div/h3/a/span // получение текста. Принимается как массив слов
+        // .//div[@data-auto="tooltip-anchor"] - rating1
+        // .//a[@data-zone-name="rating"] - rating2
+        // Проверка на наличие rating1, если его нету - проверка на наличие rating2, если и его нету - исключение из списка
 
         private readonly ChromeDriver _driver;
         private readonly string _captchaKey;
@@ -69,9 +57,9 @@ namespace ConsoleParser.Parse
 
             Thread.Sleep(5000);
 
-            var product =   Filter.ByAccuracyLevel(
-                            Filter.ByRatingOnPage(
-                            Filter.ByManufacturerInName(IParser.GetProductsV3(_driver), manufacture), _captchaKey), searchCondition);
+            var product = Filter.ByAccuracyLevel(
+                            //Filter.ByRatingOnPage(
+                            Filter.ByManufacturerInName(IParser.GetProductsV3(_driver), manufacture)/*, _captchaKey)*/, searchCondition);
 
             Logger.LogNewLine($"│└\"{searchCondition}\" с яндекса успешно собран!");
 
@@ -90,7 +78,7 @@ namespace ConsoleParser.Parse
             while (textBoxes.Count > 0)
             {
                 Thread.Sleep(1000);
-                var imageURL = driver.FindElement(By.XPath(".//img[@class='AdvancedCaptcha-Image']")).GetAttribute("src");
+                var imageURL = driver.FindElement(By.XPath(".//div/img")).GetAttribute("src");
                 using (var client = new WebClient())
                     client.DownloadFile(imageURL, "captcha.jpg");
 

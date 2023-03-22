@@ -129,6 +129,7 @@ namespace ConsoleParser.Parse.Filters
         public static Stuff ByRatingOnPage(Stuff product, string captchaKey) // Распространяется на Яндекс.Маркет
         {
             var yandexFilterChrome = new ChromeDriver();
+            yandexFilterChrome.Manage().Timeouts().ImplicitWait = new TimeSpan(0, 0, 5);
 
             for (int i = 0; i < product.Names.Count; i++)
             {

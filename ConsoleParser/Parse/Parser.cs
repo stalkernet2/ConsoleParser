@@ -10,12 +10,14 @@ namespace ConsoleParser.Parse
 {
     public class Parser
     {
+        public static Parameters Params { get; private set; }
         public static Task Start(Parameters parameters)
         {
             if(!ConnectionIsExist(parameters.URL).Result)
                 return Task.FromResult(0);
 
             IParser searcher;
+            Params = parameters;
 
             Logger.LogNewLine("Инициализация Гугл таблиц...");
             var gSheets = new GSheets(parameters.SecretJson, parameters.APIName)

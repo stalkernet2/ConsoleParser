@@ -66,25 +66,6 @@ namespace ConsoleParser.Parse
             return new Stuff(nameList, linkList);
         }
 
-        // Особая система сбора карточек. Специально для Яндекса
-        // .//article[@data-calc-coords='true'] // карточка товара
-        // Этап получения рейтинга
-        // .//article[@data-calc-coords='true']/div/div/div/a[@target='_blank'] // xpath и img элемента, и a элемента
-
-        // Скрипт, проверяющий на наличие .//div/img элемента 
-        // Если есть - скип, если нет - добавляет карточка товара в новосозданный список
-        // .//div/h3/a/span // получение текста. Принимается как массив слов
-
-        // 1 тип
-        // проверка - .//div[@data-auto="rating-badge"]
-        // имя - .//h3[@data-zone-name="title"]/a/span
-        // линк - .//h3[@data-zone-name="title"]/a получаем из href
-
-        // 2 тип
-        // проверка - 
-        // имя - 
-        // линк - 
-
         protected private static Stuff GetProductsV3(ChromeDriver chromeDriver)
         {
             Logger.LogNewLine("│├Получение карточек товаров...");
@@ -98,8 +79,10 @@ namespace ConsoleParser.Parse
 
             Logger.LogNewLine($"│├Получено {stuff.Count}");
 
-            var nameList = new List<string>();
-            var linkList = new List<string>();
+            //var nameList = new List<string>();
+            //var linkList = new List<string>();
+
+            var outStuff = new Stuff();
 
             Thread.Sleep(1000);
 
@@ -108,11 +91,24 @@ namespace ConsoleParser.Parse
             {
                 Logger.LogOnLine($"│├Собрано {i + 1} из {stuff.Count}...");
 
-                nameList.Add(ToArray(stuff[i].FindElements(By.XPath(".//div/h3/a/span"))));
-                linkList.Add(OtherStuff.ClearGarbage(stuff[i].FindElement(By.XPath(".//div/h3/a")).GetAttribute("href"), '?'));
+                var ratingCheck = stuff[i].FindElements(By.XPath(".//div[@data-auto=\"tooltip-anchor\"]"));
+                if (ratingCheck.Count == 0)
+                {
+                    ratingCheck = stuff[i].FindElements(By.XPath(".//a[@data-zone-name=\"rating\"]"));
+
+                    if (ratingCheck.Count == 0)
+                        continue;
+                }
+                
+
+                //nameList.Add(ToArray(stuff[i].FindElements(By.XPath(".//div/h3/a/span"))));
+                //linkList.Add(OtherStuff.ClearGarbage(stuff[i].FindElement(By.XPath(".//div/h3/a")).GetAttribute("href"), '?'));
+
+                outStuff.Add(ToArray(stuff[i].FindElements(By.XPath(".//div/h3/a/span"))),
+                             OtherStuff.ClearGarbage(stuff[i].FindElement(By.XPath(".//div/h3/a")).GetAttribute("href"), '?'));
             }
 
-            return new Stuff(nameList, linkList);
+            return outStuff; /*new Stuff(nameList, linkList)*/
         }
 
         private static string ToArray(ReadOnlyCollection<IWebElement> collection)

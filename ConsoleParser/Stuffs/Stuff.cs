@@ -25,7 +25,6 @@ namespace ConsoleParser.Stuffs
         {
             Names.Add(name);
             Links.Add(link);
-            var we = new List<(string, string)>();
         }
 
         public (string, string) Get(int index) => (Names[index], Links[index]);
