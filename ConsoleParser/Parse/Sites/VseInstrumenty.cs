@@ -10,7 +10,7 @@ namespace ConsoleParser.Parse
 
             var result = Filter.ByAccuracyLevel(Filter.ByManufacturerInName(product, manufacture), searchCondition);
 
-            Logger.LogNewLine($"│└{searchCondition} с озона успешно собрано!");
+            Logger.LogNewLine($"│└{searchCondition} со ВсеИнструменты успешно собрано!");
             return result;
         }
     }

@@ -14,7 +14,6 @@ namespace ConsoleParser.Parse
 
         private readonly ChromeDriver _driver;
         private readonly string _captchaKey;
-        private bool _firstStart = true;
 
         public YandexDriver(string captchaKey)
         {
@@ -28,11 +27,9 @@ namespace ConsoleParser.Parse
             if (!_driver.Url.StartsWith(searchURL))
                 _driver.Navigate().GoToUrl(searchURL);
 
-            if (_firstStart)
-            {
-                _driver.Navigate().Refresh(); // триггер защиты. Защита не сразу может сработать
-                _firstStart = false;
-            }
+            _driver.Navigate().Refresh(); // триггер защиты. Защита не сразу может сработать
+
+            Thread.Sleep(2500);
 
             Logger.LogNewLine("│├Проверка на наличие капчи...");
             if (_driver.FindElements(By.XPath(".//div[@class='CheckboxCaptcha-Anchor']")).Count > 0)
@@ -55,11 +52,16 @@ namespace ConsoleParser.Parse
             _driver.FindElement(By.XPath(".//input[@type='text']")).SendKeys(searchCondition);
             _driver.FindElement(By.XPath(".//button[@type='submit']")).Click();
 
-            Thread.Sleep(5000);
+            Thread.Sleep(4000);
+
+            Logger.LogNewLine("│├Повторная проверка на наличие капчи...");
+            if (_driver.FindElements(By.XPath(".//div[@class='CheckboxCaptcha-Anchor']")).Count > 0)
+                Captcha(_driver, _captchaKey);
+            else
+                Logger.LogNewLine("│├Капча не найдена!");
 
             var product = Filter.ByAccuracyLevel(
-                            //Filter.ByRatingOnPage(
-                            Filter.ByManufacturerInName(IParser.GetProductsV3(_driver), manufacture)/*, _captchaKey)*/, searchCondition);
+                            Filter.ByManufacturerInName(IParser.GetProductsV3(_driver), manufacture), searchCondition);
 
             Logger.LogNewLine($"│└\"{searchCondition}\" с яндекса успешно собран!");
 
