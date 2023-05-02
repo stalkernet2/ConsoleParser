@@ -21,9 +21,11 @@ namespace ConsoleParser.Parse
             _captchaKey = captchaKey;
         }
 
-        public List<string> GetValidURL(string searchCondition, string searchURL, string[] XPaths, string manufacture = "", bool usingName = false)
+        public List<string> GetValidURL(string searchCondition, string searchURL, string[] XPaths, string name, string manufacture = "", bool usingName = false)
         {
+            Logger.LogNewLine($"┌─С {name}...");
             Logger.LogNewLine("│┌Попытка запуска сборщика...");
+
             if (!_driver.Url.StartsWith(searchURL))
                 _driver.Navigate().GoToUrl(searchURL);
 
@@ -63,7 +65,8 @@ namespace ConsoleParser.Parse
             var product = Filter.ByAccuracyLevel(
                             Filter.ByManufacturerInName(IParser.GetProductsV3(_driver), manufacture), searchCondition);
 
-            Logger.LogNewLine($"│└\"{searchCondition}\" с яндекса успешно собран!");
+            Logger.LogNewLine($"│└\"{searchCondition}\" успешно собран!");
+            Logger.LogNewLine($"└─Конец сбора с {name}");
 
             return product;
         }

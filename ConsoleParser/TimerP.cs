@@ -48,7 +48,7 @@ namespace ConsoleParser
             if (_triggerTimeToStop.Hours == timeNowSpan.Hours && _triggerTimeToStop.Minutes == timeNowSpan.Minutes && _triggerTimeToStop.Seconds == timeNowSpan.Seconds)
             {
                 _timer.Dispose();
-                Logger.LogNewLine("Время работы парсера подошло к концу и он решил пойти поспать после будной ночи...", LogEnum.Warning);
+                Logger.LogNewLine("Время работы парсера подошло к концу и он решил пойти поспать после бурной ночи...", LogEnum.Warning);
                 Environment.Exit(0);
             }
         }

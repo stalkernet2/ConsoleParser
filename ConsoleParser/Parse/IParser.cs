@@ -8,11 +8,12 @@ namespace ConsoleParser.Parse
 {
     public interface IParser
     {
-        public List<string> GetValidURL(string searchCondition, string searchURL, string[] XPaths, string manufacture = "", bool usingName = false);
+        public List<string> GetValidURL(string searchCondition, string searchURL, string[] XPaths, string name, string manufacture = "", bool usingName = false);
 
         protected private static Stuff GetProductsV2(string searchCondition, string searchURL, string[] XPaths, int validValue = 1)
         {
             Logger.LogNewLine("│┌Попытка запуска сборщика...");
+
             using var chromeDriver = new ChromeDriver();
             chromeDriver.Manage().Timeouts().ImplicitWait = new TimeSpan(0, 0, 5);
 
@@ -62,7 +63,8 @@ namespace ConsoleParser.Parse
                 }
             }
 
-            Logger.LogNewLine("│├...успешен!");
+            Logger.LogNewLine("│└...успешен!");
+
             return new Stuff(nameList, linkList);
         }
 

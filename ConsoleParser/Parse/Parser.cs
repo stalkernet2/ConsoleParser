@@ -76,7 +76,6 @@ namespace ConsoleParser.Parse
 
                     if (parameters.Ozon)
                     {
-                        Logger.LogNewLine($"┌─С Озона...");
                         searcher = new Ozon();
                         ozonTask = Task.Factory.StartNew(() => searcher.GetValidURL(searchCondition: product.Names[otidoProductIndex],
                                                         manufacture: product.Manufacturers[otidoProductIndex],
@@ -85,15 +84,14 @@ namespace ConsoleParser.Parse
                                                                                 $".//span[@class='{parameters.AClass}']",
                                                                                 $".//div/a/span/span",
                                                                                 $".//a[@data-prerender='true']"},
+                                                        name: "Озона",
                                                         usingName: true));
-                        Logger.LogNewLine("└─Конец сбора с Озона");
                     }
 
                     //Начало работы драйвера "ВСЕИНСТРУМЕНТЫ"
 
                     if (parameters.VseInstrumenti)
                     {
-                        Logger.LogNewLine($"┌─С ВсеИнструментов...");
                         searcher = new VseInstrumenty();
                         vseinstrTask = Task.Factory.StartNew(() => searcher.GetValidURL(searchCondition: product.Names[otidoProductIndex],
                                                             manufacture: product.Manufacturers[otidoProductIndex],
@@ -101,16 +99,16 @@ namespace ConsoleParser.Parse
                                                             XPaths: new string[4] { ".//div[@data-qa='products-tile-horizontal']",
                                                                                     ".//span[@class='typography text v5 -no-margin']",
                                                                                     ".//span[@class='typography text v4 ']",
-                                                                                    ".//a[@data-qa='product-name']"}));
-                        Logger.LogNewLine("└─Конец сбора со ВсехИнструментов");
+                                                                                    ".//a[@data-qa='product-name']"},
+                                                            name: "ВсеИнструментов"));
                     }
                     
                     if (parameters.Yandex && yandexDriver is not null)
-                    {
-                        Logger.LogNewLine($"┌─С Я.Маркета...");
-                        yandexTask = Task.Factory.StartNew(() => yandexDriver.GetValidURL(product.Names[otidoProductIndex], "https://market.yandex.ru/", Array.Empty<string>(), product.Manufacturers[otidoProductIndex]));
-                        Logger.LogNewLine("└─Конец сбора с Я.Маркета");
-                    }
+                        yandexTask = Task.Factory.StartNew(() => yandexDriver.GetValidURL(product.Names[otidoProductIndex], 
+                                                                                          "https://market.yandex.ru/", 
+                                                                                          Array.Empty<string>(),
+                                                                                          name: "Я.Маркета",
+                                                                                          product.Manufacturers[otidoProductIndex]));
 
                     var ozonList = new List<string>();
                     var vseinstrList = new List<string>();
