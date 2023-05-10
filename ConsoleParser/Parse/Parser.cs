@@ -133,7 +133,11 @@ namespace ConsoleParser.Parse
                     }
 
                     if (ozonList.Count <= 0 && vseinstrList.Count <= 0 && yandexList.Count <= 0)
+                    {
+                        Logger.LogNewLine("Ничего небыло найдено!", LogEnum.Warning);
                         continue;
+                    }
+                        
 
                     Logger.LogNewLine("Отправка в Гугл таблицу...");
 
