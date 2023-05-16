@@ -93,7 +93,7 @@ namespace ConsoleParser.Parse
             {
                 Logger.LogOnLine($"│├Собрано {i + 1} из {stuff.Count}...");
 
-                var ratingCheck = stuff[i].FindElements(By.XPath(".//div[@data-auto=\"tooltip-anchor\"]"));
+                var ratingCheck = stuff[i].FindElements(By.XPath(".//div[@role='meter']"));
                 if (ratingCheck.Count == 0)
                 {
                     ratingCheck = stuff[i].FindElements(By.XPath(".//a[@data-zone-name=\"rating\"]"));
