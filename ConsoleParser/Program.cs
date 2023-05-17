@@ -80,7 +80,7 @@ namespace ConsoleParser
 
             if (parameters.URL == "")
             {
-                Logger.LogNewLine("URL-ссылка на каталог не указан!", LogEnum.Error);
+                Logger.LogNewLine("URL-ссылка на каталог не указана!", LogEnum.Error);
                 return;
             }
 

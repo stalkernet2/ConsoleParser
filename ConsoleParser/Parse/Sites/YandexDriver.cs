@@ -33,11 +33,7 @@ namespace ConsoleParser.Parse
 
             Logger.LogNewLine("│├Проверка на наличие капчи...");
 
-            var xPathCaptcha = ".//input[@class='Textinput-Control']"; // На виртуалке временами не может пройти нормально капчу
-            if (_driver.FindElements(By.XPath(".//div[@class='CheckboxCaptcha-Anchor']")).Count > 0)
-                xPathCaptcha = ".//div[@class='CheckboxCaptcha-Anchor']";
-
-            if (IParser.WaitUntilElementsBecomeVisible(_driver, xPathCaptcha, ".//button[@type='submit']"))
+            if (IParser.WaitUntilElementsBecomeVisible(_driver, ".//div[@class='CheckboxCaptcha-Anchor']", ".//button[@type='submit']"))
                 Captcha(_driver, _captchaKey);
             else
                 Logger.LogNewLine("│├Капча не найдена!");
@@ -97,9 +93,12 @@ namespace ConsoleParser.Parse
                 Thread.Sleep(1000);
                 var imageURL = driver.FindElement(By.XPath(".//div/img")).GetAttribute("src");
                 var downloaded = false;
+                var i = 1;
+
                 while (!downloaded)
                     using (var client = new WebClient())
                     {
+                        Logger.LogNewLine($"│├Попытка загрузить картинку {i}...", LogEnum.Warning);
                         try
                         {
                             client.DownloadFile(imageURL, "captcha.jpg");
