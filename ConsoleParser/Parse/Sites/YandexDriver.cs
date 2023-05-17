@@ -48,7 +48,7 @@ namespace ConsoleParser.Parse
                     return new List<string>();
             }
 
-            IParser.WaitUntilElementsBecomeVisible(_driver, ".//input[@type='text']", ".//button[@type='submit']");
+            IParser.WaitUntilElementsBecomeVisible(_driver, ".//input[@type='text']");
 
             _driver.FindElement(By.XPath(".//input[@type='text']")).Clear(); 
             _driver.FindElement(By.XPath(".//input[@type='text']")).SendKeys(searchCondition);
