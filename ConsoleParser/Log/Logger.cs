@@ -18,11 +18,10 @@ namespace ConsoleParser
 
         public static void Init(bool debugWrite)
         {
-            if (debugWrite)
-            {
-                s_debugWrite = true;
+            if (!debugWrite)
                 return;
-            }
+
+            s_debugWrite = true;
 
             if (!Directory.Exists(s_path))
                 Directory.CreateDirectory(s_path);
