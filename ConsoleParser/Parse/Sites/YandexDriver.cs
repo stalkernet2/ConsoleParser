@@ -91,8 +91,17 @@ namespace ConsoleParser.Parse
             {
                 Thread.Sleep(1000);
                 var imageURL = driver.FindElement(By.XPath(".//div/img")).GetAttribute("src");
-                using (var client = new WebClient())
-                    client.DownloadFile(imageURL, "captcha.jpg");
+                var downloaded = false;
+                while (!downloaded)
+                    using (var client = new WebClient())
+                    {
+                        try
+                        {
+                            client.DownloadFile(imageURL, "captcha.jpg");
+                            downloaded = true;
+                        }
+                        catch { }
+                    }
 
                 var captcha = new Normal("captcha.jpg");
                 Logger.LogNewLine("│├Получаем код капчи...");
