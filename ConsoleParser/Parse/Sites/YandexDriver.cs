@@ -83,9 +83,14 @@ namespace ConsoleParser.Parse
         {
             Logger.LogNewLine("│├Прохождение капчи...");
             driver.FindElement(By.XPath(".//div[@class='CheckboxCaptcha-Anchor']")).Click();
-            Thread.Sleep(1000);
-            var textBoxes = driver.FindElements(By.XPath(".//input[@class='Textinput-Control']"));
 
+            if(IParser.WaitUntilElementsBecomeVisible(driver, ".//input[@type='text']", ".//input[@class='Textinput-Control']"))
+            {
+                Logger.LogNewLine("│├Картинка не найдена, капча пройдена!");
+                return;
+            }
+
+            var textBoxes = driver.FindElements(By.XPath(".//input[@class='Textinput-Control']"));
             var solver = new TwoCaptcha.TwoCaptcha(captchaKey);
 
             while (textBoxes.Count > 0)
