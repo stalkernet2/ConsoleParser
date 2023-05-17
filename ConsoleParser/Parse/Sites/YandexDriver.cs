@@ -8,25 +8,12 @@ namespace ConsoleParser.Parse
 {
     public class YandexDriver : IParser // https://market.yandex.ru/
     {
-        // .//article[@data-auto="product-snippet"] // карточка товара // не рабочий способ
-        // .//a[@data-auto="product-title"] //  наименование товара (через title=)
-        // .//a[@data-zone-name="rating"] // получение рейтинга. Отсюда же можно взять ссылку на отзывы(через href=)
-
-        // .//div[@class='_1GfBD'] // карточка товара
-        // .//div/div/a[@target='_blank'] рейтинг товара
-        // .//div[@data-apiary-widget-name="@marketfront/SearchSerp"]//div[@class='_1GfBD']/div/div/a[@target='_blank']
-
-        // Особая система сбора карточек
-        // .//article[@data-calc-coords='true'] // карточка товара
-        // Этап получения рейтинга
-        // .//article[@data-calc-coords='true']/div/div/div/a[@target='_blank'] // xpath и img элемента, и a элемента
-        // Скрипт проверяющий на наличие .//div/img элемента 
-        // Если есть - скип, если нет - добавляет карточка товара в новосозданный список
-        // .//div/h3/a/span // получение текста. Принимается как массив слов
+        // .//div[@data-auto="tooltip-anchor"] - rating1
+        // .//a[@data-zone-name="rating"] - rating2
+        // Проверка на наличие rating1, если его нету - проверка на наличие rating2, если и его нету - исключение из списка
 
         private readonly ChromeDriver _driver;
         private readonly string _captchaKey;
-        private bool _firstStart = true;
 
         public YandexDriver(string captchaKey)
         {
@@ -34,20 +21,18 @@ namespace ConsoleParser.Parse
             _captchaKey = captchaKey;
         }
 
-        public List<string> GetValidURL(string searchCondition, string searchURL, string[] XPaths, string manufacture = "", bool usingName = false)
+        public List<string> GetValidURL(string searchCondition, string searchURL, string[] XPaths, string name, string manufacture = "", bool usingName = false)
         {
+            Logger.LogNewLine($"┌─С {name}...");
             Logger.LogNewLine("│┌Попытка запуска сборщика...");
+
             if (!_driver.Url.StartsWith(searchURL))
                 _driver.Navigate().GoToUrl(searchURL);
 
-            if (_firstStart)
-            {
-                _driver.Navigate().Refresh(); // триггер защиты. Защита не сразу может сработать
-                _firstStart = false;
-            }
+            _driver.Navigate().Refresh(); // триггер защиты. Защита не сразу может сработать
 
             Logger.LogNewLine("│├Проверка на наличие капчи...");
-            if (_driver.FindElements(By.XPath(".//div[@class='CheckboxCaptcha-Anchor']")).Count > 0)
+            if (IParser.WaitUntilElementsBecomeVisible(_driver, ".//div[@class='CheckboxCaptcha-Anchor']", ".//button[@type='submit']"))
                 Captcha(_driver, _captchaKey);
             else
                 Logger.LogNewLine("│├Капча не найдена!");
@@ -63,22 +48,37 @@ namespace ConsoleParser.Parse
                     return new List<string>();
             }
 
-            _driver.FindElement(By.XPath(".//input[@type='text']")).Clear();
+            IParser.WaitUntilElementsBecomeVisible(_driver, ".//input[@type='text']", ".//button[@type='submit']");
+
+            _driver.FindElement(By.XPath(".//input[@type='text']")).Clear(); 
             _driver.FindElement(By.XPath(".//input[@type='text']")).SendKeys(searchCondition);
-            _driver.FindElement(By.XPath(".//button[@type='submit']")).Click();
+            _driver.FindElement(By.XPath(".//button[@type='submit']")).Click(); // оправка поискового запроса
 
-            Thread.Sleep(5000);
+            Logger.LogNewLine("│├Повторная проверка на наличие капчи...");
+            if (IParser.WaitUntilElementsBecomeVisible(_driver, ".//div[@class='CheckboxCaptcha-Anchor']", ".//button[@type='submit']"))
+                Captcha(_driver, _captchaKey);
+            else
+                Logger.LogNewLine("│├Капча не найдена!");
 
-            var product =   Filter.ByAccuracyLevel(
-                            Filter.ByRatingOnPage(
-                            Filter.ByManufacturerInName(IParser.GetProductsV3(_driver), manufacture), searchCondition), _captchaKey);
+            if (IParser.WaitUntilElementsBecomeVisible(_driver, 
+                                                       ".//div[@data-baobab-name='emptySearch']",
+                                                       ".//article[@data-calc-coords='true']")) // проверка на "Этого мы не нашли"
+            {
+                Logger.LogNewLine($"│└\"{searchCondition}\" не был найден!", LogEnum.Warning);
+                Logger.LogNewLine($"└─Конец сбора с {name}");
+                return new List<string>();
+            }
 
-            Logger.LogNewLine($"│└\"{searchCondition}\" с яндекса успешно собран!");
+            var product = Filter.ByAccuracyLevel(
+                            Filter.ByManufacturerInName(IParser.GetProductsV3(_driver), manufacture), searchCondition);
+
+            Logger.LogNewLine($"│└\"{searchCondition}\" успешно собран!");
+            Logger.LogNewLine($"└─Конец сбора с {name}");
 
             return product;
         }
 
-        public static void Captcha(ChromeDriver driver, string captchaKey)
+        private static void Captcha(ChromeDriver driver, string captchaKey)
         {
             Logger.LogNewLine("│├Прохождение капчи...");
             driver.FindElement(By.XPath(".//div[@class='CheckboxCaptcha-Anchor']")).Click();
@@ -90,7 +90,7 @@ namespace ConsoleParser.Parse
             while (textBoxes.Count > 0)
             {
                 Thread.Sleep(1000);
-                var imageURL = driver.FindElement(By.XPath(".//img[@class='AdvancedCaptcha-Image']")).GetAttribute("src");
+                var imageURL = driver.FindElement(By.XPath(".//div/img")).GetAttribute("src");
                 using (var client = new WebClient())
                     client.DownloadFile(imageURL, "captcha.jpg");
 
@@ -103,6 +103,7 @@ namespace ConsoleParser.Parse
 
                 textBoxes = driver.FindElements(By.XPath(".//input[@class='Textinput-Control']"));
             }
+            Logger.LogNewLine("│├Капча пройдена!");
         }
     }
 }

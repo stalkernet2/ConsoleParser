@@ -12,7 +12,7 @@ namespace ConsoleParser
             Console.Title = Name;
             //DebugMoment();
 
-            Logger.Init();
+            Logger.Init(false);
             Logger.LogNewLine("Инициализация логгера успешна!");
 
             Logger.LogNewLine("Версия платформы: " + RuntimeInformation.FrameworkDescription);
@@ -132,7 +132,7 @@ namespace ConsoleParser
         private static void DebugMoment()
         {
             var ya = new YandexDriver("");
-            var we = ya.GetValidURL("asd", "", Array.Empty<string>());
+            var we = ya.GetValidURL("asd", "", Array.Empty<string>(), "Я.Маркете ТЕСТ");
             Console.ReadKey();
         }
     }

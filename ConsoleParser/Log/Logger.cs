@@ -10,23 +10,32 @@ namespace ConsoleParser
 {
     public class Logger
     {
-        private static string fileLog = "";
-        private static string path = "logs";
+        private static readonly string s_path = "logs";
 
-        public static void Init()
+        private static string s_fileLog = "";
+        
+        private static bool s_debugWrite = false;
+
+        public static void Init(bool debugWrite)
         {
-            if (!Directory.Exists(path))
-                Directory.CreateDirectory(path);
+            if (debugWrite)
+            {
+                s_debugWrite = true;
+                return;
+            }
 
-            fileLog = "Log" + DateTime.Now.Date.ToString("dd/MM/yyyy").Replace('.', '_');
+            if (!Directory.Exists(s_path))
+                Directory.CreateDirectory(s_path);
+
+            s_fileLog = "Log" + DateTime.Now.Date.ToString("dd/MM/yyyy").Replace('.', '_');
 
             var i = 0;
-            while (File.Exists($"{path}/" + fileLog + (i == 0 ? "" : $" ({i})") + ".txt"))
+            while (File.Exists($"{s_path}/" + s_fileLog + (i == 0 ? "" : $" ({i})") + ".txt"))
                 i++;
 
-            fileLog += (i == 0 ? "" : $" ({i})") + ".txt";
+            s_fileLog += (i == 0 ? "" : $" ({i})") + ".txt";
 
-            using var fileStream = new FileStream($"{path}/{fileLog}", FileMode.OpenOrCreate, FileAccess.ReadWrite);
+            using var fileStream = new FileStream($"{s_path}/{s_fileLog}", FileMode.OpenOrCreate, FileAccess.ReadWrite);
         }
 
         public static void LogOnLine(string text, LogEnum @enum = LogEnum.Info)
@@ -38,7 +47,8 @@ namespace ConsoleParser
 
         public static void LogNewLine(string text, LogEnum @enum = LogEnum.Info)
         {
-            //WriteTextInLogFile($"[{DateTime.Now:dd.MM.yyyy || HH:mm:ss.ffffff}]: {@enum} " + text.Replace('│', '|').Replace('├', '|').Replace('└', '\\').Replace('┌', '/').Replace('─', '-')); // da
+            if(s_debugWrite)
+                WriteTextInLogFile($"[{DateTime.Now:dd.MM.yyyy || HH:mm:ss.ffffff}]: {@enum} " + text.Replace('│', '|').Replace('├', '|').Replace('└', '\\').Replace('┌', '/').Replace('─', '-')); // da
 
             switch (@enum)
             {
@@ -82,7 +92,7 @@ namespace ConsoleParser
 
         private static async void WriteTextInLogFile(string value)
         {
-            using var sw = File.AppendText($"{path}/{fileLog}");
+            using var sw = File.AppendText($"{s_path}/{s_fileLog}");
             await sw.WriteAsync(value + Environment.NewLine);
             sw.Close();
         }

@@ -27,7 +27,7 @@ namespace ConsoleParser.Stuffs
 
             for (int i = 0; i < productCardsCollection.Count; i++)
             {
-                if (productCardsCollection[i].FindElement(By.XPath(".//div[@class='line-block__item rating__value']")).Text.Trim() != "0") // Проверка на наличие отзывов 
+                if (productCardsCollection[i].FindElement(By.XPath(".//div[@class='line-block__item rating__value']")).Text.Trim() != "0") // Проверка на наличие отзывов. Если есть - игнорировать
                     continue;
 
                 Logger.LogOnLine($"Парсинг карточки товара, {i} из {productCardsCollection.Count}");

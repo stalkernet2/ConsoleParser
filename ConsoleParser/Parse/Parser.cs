@@ -2,21 +2,31 @@
 using GoogleSheetsAPI;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
+using System;
+using System.Net;
+using System.Threading;
 
 namespace ConsoleParser.Parse
 {
     public class Parser
     {
+        public static Parameters Params { get; private set; }
         public static Task Start(Parameters parameters)
         {
+            if(!ConnectionIsExist(parameters.URL).Result)
+                return Task.FromResult(0);
+
             IParser searcher;
+            Params = parameters;
 
             Logger.LogNewLine("Инициализация Гугл таблиц...");
             var gSheets = new GSheets(parameters.SecretJson, parameters.APIName)
             {
                 SpreadsheetId = parameters.SpreadsheetId,
             };
+
             ChromeDriver mainDriver;
+
             try
             {
                 mainDriver = new ChromeDriver();
@@ -66,7 +76,6 @@ namespace ConsoleParser.Parse
 
                     if (parameters.Ozon)
                     {
-                        Logger.LogNewLine($"┌─С Озона...");
                         searcher = new Ozon();
                         ozonTask = Task.Factory.StartNew(() => searcher.GetValidURL(searchCondition: product.Names[otidoProductIndex],
                                                         manufacture: product.Manufacturers[otidoProductIndex],
@@ -75,15 +84,14 @@ namespace ConsoleParser.Parse
                                                                                 $".//span[@class='{parameters.AClass}']",
                                                                                 $".//div/a/span/span",
                                                                                 $".//a[@data-prerender='true']"},
+                                                        name: "Озона",
                                                         usingName: true));
-                        Logger.LogNewLine("└─Конец сбора с Озона");
                     }
 
                     //Начало работы драйвера "ВСЕИНСТРУМЕНТЫ"
 
                     if (parameters.VseInstrumenti)
                     {
-                        Logger.LogNewLine($"┌─С ВсеИнструментов...");
                         searcher = new VseInstrumenty();
                         vseinstrTask = Task.Factory.StartNew(() => searcher.GetValidURL(searchCondition: product.Names[otidoProductIndex],
                                                             manufacture: product.Manufacturers[otidoProductIndex],
@@ -91,16 +99,16 @@ namespace ConsoleParser.Parse
                                                             XPaths: new string[4] { ".//div[@data-qa='products-tile-horizontal']",
                                                                                     ".//span[@class='typography text v5 -no-margin']",
                                                                                     ".//span[@class='typography text v4 ']",
-                                                                                    ".//a[@data-qa='product-name']"}));
-                        Logger.LogNewLine("└─Конец сбора со ВсехИнструментов");
+                                                                                    ".//a[@data-qa='product-name']"},
+                                                            name: "ВсеИнструментов"));
                     }
                     
                     if (parameters.Yandex && yandexDriver is not null)
-                    {
-                        Logger.LogNewLine($"┌─С Я.Маркета...");
-                        yandexTask = Task.Factory.StartNew(() => yandexDriver.GetValidURL(product.Names[otidoProductIndex], "https://market.yandex.ru/", Array.Empty<string>(), product.Manufacturers[otidoProductIndex]));
-                        Logger.LogNewLine("└─Конец сбора с Я.Маркета");
-                    }
+                        yandexTask = Task.Factory.StartNew(() => yandexDriver.GetValidURL(product.Names[otidoProductIndex], 
+                                                                                          "https://market.yandex.ru/", 
+                                                                                          Array.Empty<string>(),
+                                                                                          name: "Я.Маркета",
+                                                                                          product.Manufacturers[otidoProductIndex]));
 
                     var ozonList = new List<string>();
                     var vseinstrList = new List<string>();
@@ -125,7 +133,11 @@ namespace ConsoleParser.Parse
                     }
 
                     if (ozonList.Count <= 0 && vseinstrList.Count <= 0 && yandexList.Count <= 0)
+                    {
+                        Logger.LogNewLine("Ничего не найдено!", LogEnum.Warning);
                         continue;
+                    }
+                        
 
                     Logger.LogNewLine("Отправка в Гугл таблицу...");
 
@@ -152,6 +164,32 @@ namespace ConsoleParser.Parse
 
             Logger.LogNewLine($"Парсер успешно прошелся с {parameters.StartPage} по {parameters.EndPage} страницу!");
             return Task.CompletedTask;
+        }
+
+        private static async Task<bool> ConnectionIsExist(string url)
+        {
+            for (int i = 1; i <= 5; i++)
+            {
+                Logger.LogNewLine($"Попытка подключиться к сайту {i}...", LogEnum.Warning);
+
+                using var httpClient = new HttpClient();
+                httpClient.Timeout = new TimeSpan(0, 0, 30);
+
+                try
+                {
+                    var responce = await httpClient.GetAsync(url);
+
+                    Logger.LogNewLine($"...успешная!");
+                    return true;
+                }
+                catch (HttpRequestException e)
+                {
+                    Logger.LogNewLine($"...провальная", LogEnum.Error);
+                    continue;
+                }
+            }
+            Logger.LogNewLine($"Отсутствует подключение к интернету!", LogEnum.Error);
+            return false;
         }
     }
 }
