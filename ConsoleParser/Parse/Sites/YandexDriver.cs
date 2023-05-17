@@ -32,7 +32,12 @@ namespace ConsoleParser.Parse
             _driver.Navigate().Refresh(); // триггер защиты. Защита не сразу может сработать
 
             Logger.LogNewLine("│├Проверка на наличие капчи...");
-            if (IParser.WaitUntilElementsBecomeVisible(_driver, ".//div[@class='CheckboxCaptcha-Anchor']", ".//button[@type='submit']"))
+
+            var xPathCaptcha = ".//input[@class='Textinput-Control']"; // На виртуалке временами не может пройти нормально капчу
+            if (_driver.FindElements(By.XPath(".//div[@class='CheckboxCaptcha-Anchor']")).Count > 0)
+                xPathCaptcha = ".//div[@class='CheckboxCaptcha-Anchor']";
+
+            if (IParser.WaitUntilElementsBecomeVisible(_driver, xPathCaptcha, ".//button[@type='submit']"))
                 Captcha(_driver, _captchaKey);
             else
                 Logger.LogNewLine("│├Капча не найдена!");
