@@ -134,7 +134,7 @@ namespace ConsoleParser.Parse
 
                     if (ozonList.Count <= 0 && vseinstrList.Count <= 0 && yandexList.Count <= 0)
                     {
-                        Logger.LogNewLine("Ничего небыло найдено!", LogEnum.Warning);
+                        Logger.LogNewLine("Ничего не найдено!", LogEnum.Warning);
                         continue;
                     }
                         
@@ -177,10 +177,7 @@ namespace ConsoleParser.Parse
 
                 try
                 {
-                    HttpResponseMessage responce = await httpClient.GetAsync(url);
-
-                    //responce.EnsureSuccessStatusCode();
-                    //string responseBody = await responce.Content.ReadAsStringAsync();
+                    var responce = await httpClient.GetAsync(url);
 
                     Logger.LogNewLine($"...успешная!");
                     return true;
@@ -188,7 +185,6 @@ namespace ConsoleParser.Parse
                 catch (HttpRequestException e)
                 {
                     Logger.LogNewLine($"...провальная", LogEnum.Error);
-                    Thread.Sleep(30000);
                     continue;
                 }
             }

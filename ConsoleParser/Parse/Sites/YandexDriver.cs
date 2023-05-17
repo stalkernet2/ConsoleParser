@@ -31,10 +31,8 @@ namespace ConsoleParser.Parse
 
             _driver.Navigate().Refresh(); // триггер защиты. Защита не сразу может сработать
 
-            Thread.Sleep(2500);
-
             Logger.LogNewLine("│├Проверка на наличие капчи...");
-            if (_driver.FindElements(By.XPath(".//div[@class='CheckboxCaptcha-Anchor']")).Count > 0)
+            if (IParser.WaitUntilElementsBecomeVisible(_driver, ".//div[@class='CheckboxCaptcha-Anchor']", ".//button[@type='submit']"))
                 Captcha(_driver, _captchaKey);
             else
                 Logger.LogNewLine("│├Капча не найдена!");
@@ -50,17 +48,26 @@ namespace ConsoleParser.Parse
                     return new List<string>();
             }
 
-            _driver.FindElement(By.XPath(".//input[@type='text']")).Clear();
-            _driver.FindElement(By.XPath(".//input[@type='text']")).SendKeys(searchCondition);
-            _driver.FindElement(By.XPath(".//button[@type='submit']")).Click();
+            IParser.WaitUntilElementsBecomeVisible(_driver, ".//input[@type='text']", ".//button[@type='submit']");
 
-            Thread.Sleep(4000);
+            _driver.FindElement(By.XPath(".//input[@type='text']")).Clear(); 
+            _driver.FindElement(By.XPath(".//input[@type='text']")).SendKeys(searchCondition);
+            _driver.FindElement(By.XPath(".//button[@type='submit']")).Click(); // оправка поискового запроса
 
             Logger.LogNewLine("│├Повторная проверка на наличие капчи...");
-            if (_driver.FindElements(By.XPath(".//div[@class='CheckboxCaptcha-Anchor']")).Count > 0)
+            if (IParser.WaitUntilElementsBecomeVisible(_driver, ".//div[@class='CheckboxCaptcha-Anchor']", ".//button[@type='submit']"))
                 Captcha(_driver, _captchaKey);
             else
                 Logger.LogNewLine("│├Капча не найдена!");
+
+            if (IParser.WaitUntilElementsBecomeVisible(_driver, 
+                                                       ".//div[@data-baobab-name='emptySearch']",
+                                                       ".//article[@data-calc-coords='true']")) // проверка на "Этого мы не нашли"
+            {
+                Logger.LogNewLine($"│└\"{searchCondition}\" не был найден!", LogEnum.Warning);
+                Logger.LogNewLine($"└─Конец сбора с {name}");
+                return new List<string>();
+            }
 
             var product = Filter.ByAccuracyLevel(
                             Filter.ByManufacturerInName(IParser.GetProductsV3(_driver), manufacture), searchCondition);
@@ -71,7 +78,7 @@ namespace ConsoleParser.Parse
             return product;
         }
 
-        public static void Captcha(ChromeDriver driver, string captchaKey)
+        private static void Captcha(ChromeDriver driver, string captchaKey)
         {
             Logger.LogNewLine("│├Прохождение капчи...");
             driver.FindElement(By.XPath(".//div[@class='CheckboxCaptcha-Anchor']")).Click();
@@ -96,6 +103,7 @@ namespace ConsoleParser.Parse
 
                 textBoxes = driver.FindElements(By.XPath(".//input[@class='Textinput-Control']"));
             }
+            Logger.LogNewLine("│├Капча пройдена!");
         }
     }
 }

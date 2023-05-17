@@ -12,7 +12,7 @@ namespace ConsoleParser
             Console.Title = Name;
             //DebugMoment();
 
-            Logger.Init();
+            Logger.Init(false);
             Logger.LogNewLine("Инициализация логгера успешна!");
 
             Logger.LogNewLine("Версия платформы: " + RuntimeInformation.FrameworkDescription);

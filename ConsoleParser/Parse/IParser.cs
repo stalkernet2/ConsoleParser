@@ -81,9 +81,6 @@ namespace ConsoleParser.Parse
 
             Logger.LogNewLine($"│├Получено {stuff.Count}");
 
-            //var nameList = new List<string>();
-            //var linkList = new List<string>();
-
             var outStuff = new Stuff();
 
             Thread.Sleep(1000);
@@ -102,15 +99,29 @@ namespace ConsoleParser.Parse
                         continue;
                 }
                 
-
-                //nameList.Add(ToArray(stuff[i].FindElements(By.XPath(".//div/h3/a/span"))));
-                //linkList.Add(OtherStuff.ClearGarbage(stuff[i].FindElement(By.XPath(".//div/h3/a")).GetAttribute("href"), '?'));
-
                 outStuff.Add(ToArray(stuff[i].FindElements(By.XPath(".//div/h3/a/span"))),
                              OtherStuff.ClearGarbage(stuff[i].FindElement(By.XPath(".//div/h3/a")).GetAttribute("href"), '?'));
             }
 
-            return outStuff; /*new Stuff(nameList, linkList)*/
+            return outStuff;
+        }
+
+        protected private static bool WaitUntilElementsBecomeVisible(ChromeDriver driver, string xPath, string altXPath = ".//div[@non='!!existingParameter!!']", int interval = 250, int timeOut = 10000)
+        {
+            for (int i = 0; i < timeOut; i += interval)
+            {
+                var countOfElements = driver.FindElements(By.XPath(xPath)).Count;
+                var countOfAltElements = driver.FindElements(By.XPath(altXPath)).Count;
+
+                if (countOfElements != 0)
+                    return true;
+                else if (countOfAltElements != 0)
+                    return false;
+
+                Thread.Sleep(interval);
+            }
+
+            return false;
         }
 
         private static string ToArray(ReadOnlyCollection<IWebElement> collection)

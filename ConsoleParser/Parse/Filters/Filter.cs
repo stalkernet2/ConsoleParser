@@ -37,8 +37,7 @@ namespace ConsoleParser.Parse.Filters
 
         public static Stuff ByManufacturerInName(Stuff product, string manufacture)
         {
-            var names = new List<string>();
-            var links = new List<string>();
+            var outStuff = new Stuff();
 
             var manufacturer = manufacture.Split(' ');
 
@@ -47,15 +46,12 @@ namespace ConsoleParser.Parse.Filters
             for (int i = 0; i < product.Links.Count; i++)
             {
                 if (product.Names[i].ToLower().Contains(manufacturer[0]))
-                {
-                    names.Add(product.Names[i]);
-                    links.Add(product.Links[i]);
-                }
+                    outStuff.Add(product.Names[i], product.Links[i]);
 
                 Logger.LogOnLine($"│├Отфильтровано {i + 1} из {product.Links.Count}");
             }
 
-            return new Stuff(names, links);
+            return outStuff;
         }
 
         public static Stuff ByManufacturerOnPage(Stuff product, string manufacture) // Распространяется только на OZON
@@ -124,47 +120,6 @@ namespace ConsoleParser.Parse.Filters
                     stuff.Add(product.Names[i], product.Links[i]);
 
             return stuff;
-        }
-
-        public static Stuff ByRatingOnPage(Stuff product, string captchaKey) // Распространяется на Яндекс.Маркет
-        {
-            var yandexFilterChrome = new ChromeDriver();
-            yandexFilterChrome.Manage().Timeouts().ImplicitWait = new TimeSpan(0, 0, 5);
-
-            for (int i = 0; i < product.Names.Count; i++)
-            {
-                yandexFilterChrome.Navigate().GoToUrl(product.Links[i]);
-
-                Logger.LogNewLine("│├Проверка на наличие капчи в драйвере фильтра...");
-                if (yandexFilterChrome.FindElements(By.XPath(".//div[@class='CheckboxCaptcha-Anchor']")).Count > 0)
-                    YandexDriver.Captcha(yandexFilterChrome, captchaKey);
-                else
-                    Logger.LogNewLine("│├Капча не найдена!");
-
-                var xPath = ".//div[@data-auto=\"tooltip-anchor\"]/a"; // Стандарт
-                var validNum = 1;
-
-                if (product.Links[i].Contains("offer"))
-                {
-                    xPath = ".//div[@data-baobab-name=\"$productActions\"]//a"; // Если оффер
-                    validNum = 2;
-                }
-                
-                var ratingIsExist = yandexFilterChrome.FindElements(By.XPath(xPath)).Count; // Если равно двум - true
-
-                string ratingText = "";
-                if (ratingIsExist != 0)
-                    ratingText = yandexFilterChrome.FindElement(By.XPath(xPath)).Text;
-
-                if (ratingIsExist == validNum && char.IsDigit(ratingText[0])) // .//div[@data-baobab-name="$productActions"]//a
-                    continue;
-
-                product.RemoveAt(ref i);
-            }
-
-            yandexFilterChrome.Close();
-
-            return product;
         }
 
         public static List<string> ByRules(Stuff stuff, SearchConfig config, string searchCondition, string manufacture)
