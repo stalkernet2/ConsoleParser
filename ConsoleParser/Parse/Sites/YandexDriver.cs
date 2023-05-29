@@ -82,12 +82,16 @@ namespace ConsoleParser.Parse
         private static void Captcha(ChromeDriver driver, string captchaKey)
         {
             Logger.LogNewLine("│├Прохождение капчи...");
-            driver.FindElement(By.XPath(".//div[@class='CheckboxCaptcha-Anchor']")).Click();
-
-            if(IParser.WaitUntilElementsBecomeVisible(driver, ".//input[@type='text']", ".//input[@class='Textinput-Control']"))
+            
+            while (IParser.WaitUntilElementsBecomeVisible(driver, ".//div[@class='CheckboxCaptcha-Anchor']", ".//input[@type='text']", timeOut: 2500))
             {
-                Logger.LogNewLine("│├Картинка не найдена, капча пройдена!");
-                return;
+                driver.FindElement(By.XPath(".//div[@class='CheckboxCaptcha-Anchor']")).Click();
+                if (IParser.WaitUntilElementsBecomeVisible(driver, ".//input[@type='text']", ".//input[@class='Textinput-Control']", timeOut:2500))
+                {
+                    Logger.LogNewLine("│├Картинка не найдена, капча пройдена!");
+                    return;
+                }
+                driver.Navigate().Refresh();
             }
 
             var textBoxes = driver.FindElements(By.XPath(".//input[@class='Textinput-Control']"));
